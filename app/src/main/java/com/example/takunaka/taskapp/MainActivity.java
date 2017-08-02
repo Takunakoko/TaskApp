@@ -3,7 +3,7 @@ package com.example.takunaka.taskapp;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
-import android.app.FragmentTransaction;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
@@ -16,7 +16,9 @@ import com.example.takunaka.taskapp.fragments.MainFragment;
 public class MainActivity extends AppCompatActivity {
 
 
-    private MainFragment mFragment;
+    private static MainFragment mFragment;
+    private static Configurator configurator = Configurator.getInstance();
+    private static FragmentTransaction ftrans;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,9 +36,8 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-
+        ftrans = getSupportFragmentManager().beginTransaction();
         mFragment = new MainFragment();
-        FragmentTransaction ftrans = getFragmentManager().beginTransaction();
         ftrans.replace(R.id.container, mFragment);
         ftrans.commit();
 
@@ -64,4 +65,5 @@ public class MainActivity extends AppCompatActivity {
 
         return super.onOptionsItemSelected(item);
     }
+
 }
