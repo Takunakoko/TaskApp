@@ -104,7 +104,7 @@
             android:textAppearance="@style/TextAppearance.AppCompat.Light.SearchResult.Title" />
 
         <Button
-            android:id="@+id/addSubTaskButton"
+            android:id="@+id/addSubCreateTaskButton"
             android:layout_width="30dp"
             android:layout_height="33dp"
             android:background="@drawable/ic_add_black_24dp"

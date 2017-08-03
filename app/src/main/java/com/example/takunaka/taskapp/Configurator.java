@@ -1,10 +1,16 @@
 package com.example.takunaka.taskapp;
 
+import com.example.takunaka.taskapp.fragments.CreateTaskFragment;
+import com.example.takunaka.taskapp.fragments.MainFragment;
+import com.example.takunaka.taskapp.fragments.ShowTaskFragment;
+import com.example.takunaka.taskapp.fragments.UpdateFragment;
+
 /**
  * Created by takunaka on 02.08.17.
  */
 
 public class Configurator {
+
 
     private static Configurator instance;
 
@@ -20,6 +26,8 @@ public class Configurator {
 
     private int adapterPosition;
 
+
+
     public int getAdapterPosition() {
         return adapterPosition;
     }
@@ -27,4 +35,6 @@ public class Configurator {
     public void setAdapterPosition(int adapterPosition) {
         this.adapterPosition = adapterPosition;
     }
+
+
 }
