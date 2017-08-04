@@ -18,11 +18,13 @@ import android.view.MenuItem;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.Spinner;
+import android.widget.Toast;
 
 
 import com.example.takunaka.taskapp.fragments.MainFragment;
 import com.example.takunaka.taskapp.sql.DBNamesHelper;
-import com.example.takunaka.taskapp.sqlQuerry.UsersContainer;
+import com.example.takunaka.taskapp.sqlQuerry.UserContainer;
+import com.example.takunaka.taskapp.sqlQuerry.Users;
 
 import java.util.List;
 
@@ -33,10 +35,17 @@ public class MainActivity extends AppCompatActivity {
     private MenuItem save;
     private MenuItem edit;
     private MenuItem account;
+
     private Spinner spinnerUsers;
-    Dialog fcontext;
+
     private DBNamesHelper dbNamesHelper;
     private SQLiteDatabase dbNames;
+
+    private String selectedDialogName;
+    private String selectedDialogSurname;
+
+    private EditText selName;
+    private EditText selSurname;
 
 
     @Override
@@ -100,16 +109,6 @@ public class MainActivity extends AppCompatActivity {
 
 
     public void showUsersSelectDialog() {
-        dbNames = dbNamesHelper.getWritableDatabase();
-        Cursor cursor = dbNames.query(DBNamesHelper.TABLE_NAMES, null, null, null, null, null, null);
-        /*if(cursor.moveToFirst()){
-            int idIndex = cursor.getColumnIndex(DBNamesHelper.KEY_ID);
-            int nameIndex = cursor.getColumnIndex(DBNamesHelper.KEY_NAME);
-            do {
-                UsersContainer.addNewUser(cursor.getInt(idIndex), cursor.getString(nameIndex));
-            } while (cursor.moveToNext());
-
-        }*/
 
         AlertDialog.Builder builder = new AlertDialog.Builder(new ContextThemeWrapper(MainActivity.this, R.style.Theme_AppCompat_Dialog));
         View view = getLayoutInflater().inflate(R.layout.dialog_login, null);
@@ -119,9 +118,8 @@ public class MainActivity extends AppCompatActivity {
                 .setPositiveButton("Выбрать", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-
-                        String selectedText = spinnerUsers.getSelectedItem().toString();
-
+                        UserContainer.setSelectedID(((Users)spinnerUsers.getSelectedItem()).getUserID());
+                        UserContainer.setSelectedName(((Users)spinnerUsers.getSelectedItem()).getUserName());
                     }
                 })
                 .setNegativeButton("Новый пользователь", new DialogInterface.OnClickListener() {
@@ -132,8 +130,8 @@ public class MainActivity extends AppCompatActivity {
                     }
                 });
 
-        List<String> names = dbNamesHelper.getAllNames();
-        ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(getApplicationContext(),
+        List<Users> names = dbNamesHelper.getAllNames();
+        ArrayAdapter<Users> arrayAdapter = new ArrayAdapter<Users>(getApplicationContext(),
                 android.R.layout.simple_spinner_item
                 , names);
         arrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -148,7 +146,6 @@ public class MainActivity extends AppCompatActivity {
 
 
     public void showNewUserDialog() {
-
         dbNames = dbNamesHelper.getWritableDatabase();
         final ContentValues cv = new ContentValues();
         AlertDialog.Builder builder = new AlertDialog.Builder(new ContextThemeWrapper(MainActivity.this, R.style.Theme_AppCompat_Dialog));
@@ -159,11 +156,23 @@ public class MainActivity extends AppCompatActivity {
                     public void onClick(DialogInterface dialog, int which) {
                         Dialog f = (Dialog) dialog;
 
-                        EditText text = (EditText) f.findViewById(R.id.nameTextDialog);
-                        String name = String.valueOf(text.getText());
-                        cv.put(DBNamesHelper.KEY_NAME, name);
-                        dbNames.insert(DBNamesHelper.TABLE_NAMES, null, cv);
-                        showUsersSelectDialog();
+                        selName = (EditText) f.findViewById(R.id.nameTextDialog);
+                        selSurname = (EditText) f.findViewById(R.id.surNameTextDialog);
+                        selectedDialogName = String.valueOf(selName.getText());
+                        selectedDialogSurname = String.valueOf(selSurname.getText());
+
+                        if(searchForDoubles()){
+
+                        } else {
+                            cv.put(DBNamesHelper.KEY_NAME, selectedDialogName);
+                            cv.put(DBNamesHelper.KEY_SURNAME, selectedDialogSurname);
+
+                            dbNames.insert(DBNamesHelper.TABLE_NAMES, null, cv);
+                            Toast.makeText(getApplicationContext(), "Пользователь добавлен!", Toast.LENGTH_SHORT).show();
+                            showUsersSelectDialog();
+                        }
+
+
                     }
                 })
                 .setNegativeButton("Отмена", new DialogInterface.OnClickListener() {
@@ -180,8 +189,66 @@ public class MainActivity extends AppCompatActivity {
 
 
 
-    public void setSpinner(){
+    public boolean searchForDoubles() {
+        dbNames = dbNamesHelper.getWritableDatabase();
+        String selUser = selectedDialogName + " " + selectedDialogSurname;
+
+        Cursor cursor = dbNames.query(DBNamesHelper.TABLE_NAMES, null, null, null, null, null, null);
+
+        if (cursor.moveToFirst()) {
+            int idIndex = cursor.getColumnIndex(DBNamesHelper.KEY_ID);
+            int nameIndex = cursor.getColumnIndex(DBNamesHelper.KEY_NAME);
+            int surNameIndex = cursor.getColumnIndex(DBNamesHelper.KEY_SURNAME);
+            while (cursor.moveToNext()) {
+                Users user = new Users(cursor.getInt(idIndex), cursor.getString(nameIndex), cursor.getString(surNameIndex));
+                String tmp = user.getUserName() + " " + user.getUserSurName();
+                if (tmp.equals(selUser)) {
+                    return true;
+                }
+
+            }
+        }return false;
+    }
+
+
+
+    public void showWarningDialog(){
+        dbNames = dbNamesHelper.getWritableDatabase();
+        final ContentValues cv = new ContentValues();
+        AlertDialog.Builder builder = new AlertDialog.Builder(new ContextThemeWrapper(MainActivity.this, R.style.Theme_AppCompat_Dialog));
+        View view = getLayoutInflater().inflate(R.layout.dialog_login, null);
+        builder.setTitle("Такой пользователь уже существует!")
+                .setView(view)
+                .setPositiveButton("Выбрать существующего", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        showUsersSelectDialog();
+                    }
+                })
+                .setNegativeButton("Создать нового", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        cv.put(DBNamesHelper.KEY_NAME, selectedDialogName);
+                        cv.put(DBNamesHelper.KEY_SURNAME, selectedDialogSurname);
+                        dbNames.insert(DBNamesHelper.TABLE_NAMES, null, cv);
+                        Toast.makeText(getApplicationContext(), "Пользователь добавлен!", Toast.LENGTH_SHORT).show();
+                        showUsersSelectDialog();
+
+                    }
+                });
+
+        List<Users> names = dbNamesHelper.getAllNames();
+        ArrayAdapter<Users> arrayAdapter = new ArrayAdapter<Users>(getApplicationContext(),
+                android.R.layout.simple_spinner_item
+                , names);
+        arrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinnerUsers.setAdapter(arrayAdapter);
+
+        AlertDialog alert = builder.create();
+        alert.show();
+
 
     }
+
 
 }

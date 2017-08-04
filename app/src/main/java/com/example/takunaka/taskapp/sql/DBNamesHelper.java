@@ -5,6 +5,8 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
+import com.example.takunaka.taskapp.sqlQuerry.Users;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -15,11 +17,12 @@ import java.util.List;
 public class DBNamesHelper extends SQLiteOpenHelper {
 
    public static final int DATABASE_VERSION = 1;
-   public static final String DATABASE_NAME = "NamesDB";
-   public static final String TABLE_NAMES = "Names";
+   public static final String DATABASE_NAME = "LNamesDB";
+   public static final String TABLE_NAMES = "LNames";
 
    public static final String KEY_ID = "_id";
    public static final String KEY_NAME = "_name";
+    public static final String KEY_SURNAME = "_surname";
 
 
     public DBNamesHelper(Context context) {
@@ -30,7 +33,8 @@ public class DBNamesHelper extends SQLiteOpenHelper {
     public void onCreate(SQLiteDatabase db) {
         db.execSQL("create table " + TABLE_NAMES + " ("
                 + KEY_ID + " integer primary key autoincrement, "
-                + KEY_NAME + " text" + ")");
+                + KEY_NAME + " text, "
+                + KEY_SURNAME + " text" + ")");
     }
 
     @Override
@@ -40,8 +44,8 @@ public class DBNamesHelper extends SQLiteOpenHelper {
         onCreate(db);
     }
 
-    public List<String> getAllNames(){
-        List<String> names = new ArrayList<String>();
+    public List<Users> getAllNames(){
+        List<Users> names = new ArrayList<Users>();
 
         String selectQuery = "SELECT  * FROM " + TABLE_NAMES;
 
@@ -50,7 +54,7 @@ public class DBNamesHelper extends SQLiteOpenHelper {
 
         if (cursor.moveToFirst()) {
             do {
-                names.add(cursor.getString(1));
+                names.add(new Users(cursor.getInt(0), cursor.getString(1), cursor.getString(2)));
             } while (cursor.moveToNext());
         }
 

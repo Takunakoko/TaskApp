@@ -8,25 +8,27 @@ public class Users {
 
     private int userID;
     private String userName;
+    private String userSurName;
 
-    public Users(int iD, String name) {
+    public Users(int iD, String name, String userSurName) {
         this.userID = iD;
         this.userName = name;
+        this.userSurName = userSurName;
     }
 
     public int getUserID() {
         return userID;
     }
 
-    public void setUserID(int ID) {
-        userID = ID;
-    }
-
-    public String getName() {
+    public String getUserName() {
         return userName;
     }
+    public String getUserSurName() {
+        return userSurName;
+    }
 
-    public void setName(String name) {
-        userName = name;
+    @Override
+    public String toString () {
+        return userName + " " + userSurName;
     }
 }
