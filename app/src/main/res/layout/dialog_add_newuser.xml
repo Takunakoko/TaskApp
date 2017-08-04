@@ -12,7 +12,6 @@
         android:text="Введите имя:"/>
     <EditText
         android:id="@+id/nameTextDialog"
-        android:inputType="textEmailAddress"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
@@ -20,10 +19,5 @@
         android:layout_marginRight="4dp"
         android:layout_marginBottom="4dp"
         android:hint="Имя" />
-    <Button
-        android:id="@+id/addUser"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Добавить"/>
 
 </LinearLayout>
