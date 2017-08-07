@@ -13,28 +13,30 @@ import com.example.takunaka.taskapp.sqlQuerry.SubTask;
 
 import java.util.List;
 
+/**
+ * Created by takunaka on 07.08.17.
+ */
 
-//класс адаптера отображения recyclerView
-public class RecyclerViewSubItemAdapter extends RecyclerView.Adapter<RecyclerViewSubItemAdapter.ViewHolder> {
+public class RecyclerViewCreateSubItemAdapt extends RecyclerView.Adapter<RecyclerViewCreateSubItemAdapt.ViewHolder> {
 
     private Configurator config = Configurator.getInstance();
     private List<SubTask> subItemsAdapter;
     private Context context;
 
 
-    public RecyclerViewSubItemAdapter(List<SubTask> subItems, Context context) {
+    public RecyclerViewCreateSubItemAdapt(List<SubTask> subItems, Context context) {
         this.subItemsAdapter = subItems;
         this.context = context;
     }
 
     @Override
-    public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public RecyclerViewCreateSubItemAdapt.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.sub_item, parent, false);
-        return new ViewHolder(v);
+        return new RecyclerViewCreateSubItemAdapt.ViewHolder(v);
     }
 
     @Override
-    public void onBindViewHolder(ViewHolder holder, int position) {
+    public void onBindViewHolder(RecyclerViewCreateSubItemAdapt.ViewHolder holder, int position) {
         SubTask si = subItemsAdapter.get(position);
         //установка отображения элементов на странице
         holder.description.setText(si.getDescription());
@@ -61,11 +63,9 @@ public class RecyclerViewSubItemAdapter extends RecyclerView.Adapter<RecyclerVie
 
         }
 
-
         @Override
         public void onClick(View v) {
-            //// TODO: 02.08.17 dialog window to change/close/re-description
+
         }
     }
-
 }

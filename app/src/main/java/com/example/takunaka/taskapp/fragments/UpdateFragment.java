@@ -11,14 +11,21 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 
 import com.example.takunaka.taskapp.Configurator;
 import com.example.takunaka.taskapp.R;
+import com.example.takunaka.taskapp.sql.DBTasksHelper;
+import com.example.takunaka.taskapp.sqlQuerry.TaskContainer;
 
 
 public class UpdateFragment extends Fragment {
 
-    ShowTaskFragment showTaskFragment;
+    private ShowTaskFragment showTaskFragment;
+    private EditText name;
+    private EditText date;
+    private EditText state;
+    private DBTasksHelper dbTasksHelper;
 
     public UpdateFragment() {
     }
@@ -36,7 +43,12 @@ public class UpdateFragment extends Fragment {
                              Bundle savedInstanceState) {
 
         setHasOptionsMenu(true);
-        return inflater.inflate(R.layout.fragment_update, container, false);
+        View rootView = inflater.inflate(R.layout.fragment_update, container, false);
+        name = (EditText) rootView.findViewById(R.id.NameUpdateField);
+        date = (EditText) rootView.findViewById(R.id.DateUpdateField);
+        state = (EditText) rootView.findViewById(R.id.StateUpdateField);
+
+        return rootView;
 
 
     }
@@ -57,6 +69,15 @@ public class UpdateFragment extends Fragment {
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_save) {
+            dbTasksHelper = new DBTasksHelper(getContext());
+
+            dbTasksHelper.updateRow("UPDATE " + dbTasksHelper.TABLE_TASKS + " SET "
+                    + dbTasksHelper.KEY_DESCRIPTION + " = " + name.getText().toString() + ", "
+                    + dbTasksHelper.KEY_DATE + " = " + date.getText().toString() + ", "
+                    + dbTasksHelper.KEY_STATE + " = " + state.getText().toString()
+                    + " WHERE " + dbTasksHelper.KEY_ID + " = " + TaskContainer.getSelectedTaskID());
+
+
             FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
             showTaskFragment = new ShowTaskFragment();
             fragmentTransaction.replace(R.id.container, showTaskFragment, "Update");

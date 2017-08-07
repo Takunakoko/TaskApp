@@ -1,7 +1,6 @@
 package com.example.takunaka.taskapp.sqlQuerry;
 
-import java.util.ArrayList;
-import java.util.List;
+
 
 /**
  * Created by takunaka on 04.08.17.
@@ -26,5 +25,17 @@ public class UserContainer {
 
     public static void setSelectedName(String selectedName) {
         UserContainer.selectedName = selectedName;
+    }
+
+    public static String getSelectedSurName() {
+        return selectedSurName;
+    }
+
+    public static void setSelectedSurName(String selectedSurName) {
+        UserContainer.selectedSurName = selectedSurName;
+    }
+
+    public static String getFullName(){
+        return getSelectedSurName() + " " + getSelectedName();
     }
 }

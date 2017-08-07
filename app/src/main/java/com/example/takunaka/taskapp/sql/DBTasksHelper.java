@@ -3,7 +3,12 @@ package com.example.takunaka.taskapp.sql;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
+
+import com.example.takunaka.taskapp.sqlQuerry.SubTask;
+import com.example.takunaka.taskapp.sqlQuerry.Task;
+import com.example.takunaka.taskapp.sqlQuerry.UserContainer;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -41,9 +46,40 @@ public class DBTasksHelper extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        db.execSQL("drop table if exists " + TABLE_TASKS);
+        db.execSQL("drop table if exists " + TABLE_TASKS );
 
         onCreate(db);
     }
+
+    public List<Task> getAllTasks(){
+        String id = String.valueOf(UserContainer.getSelectedID());
+        List<Task> tasks = new ArrayList<Task>();
+
+        String selectQuery = "SELECT * FROM " + TABLE_TASKS
+                + " WHERE " + KEY_NAMEID + " = " + id ;
+
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery(selectQuery, null);
+
+        if (cursor.moveToFirst()) {
+            do {
+                tasks.add(new Task(cursor.getInt(0), cursor.getInt(1), cursor.getString(2), cursor.getString(3), cursor.getString(4)));
+            } while (cursor.moveToNext());
+        }
+
+        cursor.close();
+        db.close();
+
+        return tasks;
+    }
+
+
+    public void updateRow(String query){
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.rawQuery(query, null);
+        db.close();
+    }
+
+
 
 }

@@ -15,8 +15,9 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import com.example.takunaka.taskapp.R;
-import com.example.takunaka.taskapp.tmpPack.ListItem;
-import com.example.takunaka.taskapp.tmpPack.SubTasks;
+import com.example.takunaka.taskapp.sql.DBSubTasksHelper;
+import com.example.takunaka.taskapp.sqlQuerry.Task;
+import com.example.takunaka.taskapp.sqlQuerry.TaskContainer;
 
 import java.util.List;
 
@@ -26,21 +27,25 @@ import java.util.List;
 
 public class ViewPagerAdapter extends FragmentStatePagerAdapter {
 
-    private static List<ListItem> listItemsAdapt;
+    private static List<Task> listTaskAdapt;
     private FragmentManager fm;
 
 
-    public ViewPagerAdapter(List<ListItem> listItems, FragmentManager fm) {
+    public ViewPagerAdapter(List<Task> listItems, FragmentManager fm) {
         super(fm);
-        this.listItemsAdapt = listItems;
+        this.listTaskAdapt = listItems;
     }
 
     @Override
     public Fragment getItem(int position) {
-        ListItem li = listItemsAdapt.get(position);
+        Task li = listTaskAdapt.get(position);
         Fragment fragment = new ViewPagerFragment();
+        TaskContainer.setSelectedTaskID(li.getTaskID());
+        TaskContainer.setSelectedDesription(li.getDesription());
+        TaskContainer.setSelectedDate(li.getDate());
+        TaskContainer.setSelectedState(li.getState());
         Bundle args = new Bundle();
-        args.putString("Name", li.getName());
+        args.putString("Name", li.getDesription());
         args.putString("Date", li.getDate());
         args.putString("State", li.getState());
         fragment.setArguments(args);
@@ -49,7 +54,7 @@ public class ViewPagerAdapter extends FragmentStatePagerAdapter {
 
     @Override
     public int getCount() {
-        return listItemsAdapt.size();
+        return listTaskAdapt.size();
     }
 
     @Override
@@ -64,6 +69,8 @@ public class ViewPagerAdapter extends FragmentStatePagerAdapter {
         private TextView state;
         private Button addSubItemBtn;
         private View rootView;
+        private DBSubTasksHelper dbSubTasksHelper;
+        RecyclerViewSubItemAdapter adapter;
 
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle saveInstanceState) {
@@ -89,8 +96,9 @@ public class ViewPagerAdapter extends FragmentStatePagerAdapter {
             date.setText(args.getString("Date"));
             state.setText(args.getString("State"));
 
+            dbSubTasksHelper = new DBSubTasksHelper(rootView.getContext());
             RecyclerView rv = (RecyclerView) rootView.findViewById(R.id.recyclerView2);
-            RecyclerViewSubItemAdapter adapter = new RecyclerViewSubItemAdapter(SubTasks.getSubTasks(), rootView.getContext());
+            adapter = new RecyclerViewSubItemAdapter(dbSubTasksHelper.getAllSubTasks(), rootView.getContext());
             rv.setHasFixedSize(true);
             rv.setAdapter(adapter);
             LinearLayoutManager llm = new LinearLayoutManager(rootView.getContext());
@@ -119,7 +127,9 @@ public class ViewPagerAdapter extends FragmentStatePagerAdapter {
                     });
             AlertDialog alert = builder.create();
             alert.show();
-
         }
+
+
     }
+
 }

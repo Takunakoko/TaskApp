@@ -15,7 +15,7 @@ import android.view.ViewGroup;
 import com.example.takunaka.taskapp.Configurator;
 import com.example.takunaka.taskapp.R;
 import com.example.takunaka.taskapp.adapters.ViewPagerAdapter;
-import com.example.takunaka.taskapp.tmpPack.Tasks;
+import com.example.takunaka.taskapp.sql.DBTasksHelper;
 
 
 public class ShowTaskFragment extends Fragment implements ViewPager.OnPageChangeListener {
@@ -24,6 +24,7 @@ public class ShowTaskFragment extends Fragment implements ViewPager.OnPageChange
     private ViewPager mViewPager;
     private UpdateFragment uFragment;
     private Configurator configurator = Configurator.getInstance();
+    DBTasksHelper dbTasksHelper;
 
     public ShowTaskFragment() {
     }
@@ -38,7 +39,8 @@ public class ShowTaskFragment extends Fragment implements ViewPager.OnPageChange
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_show_task, container, false);
         mViewPager = (ViewPager) rootView.findViewById(R.id.viewPager);
-        mViewPagerAdapter = new ViewPagerAdapter(Tasks.getListItems(), getFragmentManager());
+        dbTasksHelper = new DBTasksHelper(rootView.getContext());
+        mViewPagerAdapter = new ViewPagerAdapter(dbTasksHelper.getAllTasks(), getFragmentManager());
         mViewPager.setAdapter(mViewPagerAdapter);
         mViewPager.setCurrentItem(configurator.getAdapterPosition());
         mViewPager.addOnPageChangeListener(this);
@@ -52,7 +54,7 @@ public class ShowTaskFragment extends Fragment implements ViewPager.OnPageChange
     @Override
     public void onResume() {
         super.onResume();
-        mViewPagerAdapter = new ViewPagerAdapter(Tasks.getListItems(), getFragmentManager());
+        mViewPagerAdapter = new ViewPagerAdapter(dbTasksHelper.getAllTasks(), getFragmentManager());
         mViewPager.setAdapter(mViewPagerAdapter);
         mViewPager.setCurrentItem(configurator.getAdapterPosition());
 
@@ -79,6 +81,8 @@ public class ShowTaskFragment extends Fragment implements ViewPager.OnPageChange
         super.onCreateOptionsMenu(menu, menuInflater);
         menu.findItem(R.id.action_edit).setVisible(true);
         menu.findItem(R.id.account_action).setVisible(false);
+        menu.findItem(R.id.action_save).setVisible(false);
+        menu.findItem(R.id.addTask).setVisible(false);
 
     }
 

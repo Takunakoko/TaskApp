@@ -11,13 +11,16 @@ import android.view.ViewGroup;
 
 import com.example.takunaka.taskapp.R;
 import com.example.takunaka.taskapp.adapters.RecyclerViewAdapter;
-import com.example.takunaka.taskapp.tmpPack.Tasks;
-
+import com.example.takunaka.taskapp.sql.DBTasksHelper;
 
 public class MainFragment extends Fragment {
 
+    private DBTasksHelper dbTasksHelper;
+    private RecyclerViewAdapter adapter;
+    private RecyclerView rv;
 
     public MainFragment() {
+
     }
 
     @Override
@@ -30,17 +33,30 @@ public class MainFragment extends Fragment {
                              Bundle savedInstanceState) {
 
         View rootView =  inflater.inflate(R.layout.fragment_main, container, false);
-        RecyclerView rv = (RecyclerView) rootView.findViewById(R.id.recyclerView);
+        rv = (RecyclerView) rootView.findViewById(R.id.recyclerView);
 
+        dbTasksHelper = new DBTasksHelper(rootView.getContext());
         rv.setHasFixedSize(true);
-        RecyclerViewAdapter adapter = new RecyclerViewAdapter(Tasks.getListItems(), inflater.getContext());
-
+        adapter = new RecyclerViewAdapter(dbTasksHelper.getAllTasks(), inflater.getContext());
         rv.setAdapter(adapter);
+
+
 
         LinearLayoutManager llm = new LinearLayoutManager(getActivity());
         rv.setLayoutManager(llm);
+
         return rootView;
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        notifyData();
+
+    }
+
+    public void notifyData(){
+        adapter.notifyDataSetChanged();
+    }
 
 }

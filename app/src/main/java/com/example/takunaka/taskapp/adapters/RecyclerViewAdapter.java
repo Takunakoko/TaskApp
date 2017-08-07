@@ -1,20 +1,19 @@
 package com.example.takunaka.taskapp.adapters;
 
-import android.support.v4.app.FragmentTransaction;
 import android.content.Context;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.example.takunaka.taskapp.Configurator;
-import com.example.takunaka.taskapp.MainActivity;
 import com.example.takunaka.taskapp.R;
 import com.example.takunaka.taskapp.fragments.ShowTaskFragment;
-import com.example.takunaka.taskapp.tmpPack.ListItem;
+import com.example.takunaka.taskapp.sql.DBTasksHelper;
+import com.example.takunaka.taskapp.sqlQuerry.Task;
 
 import java.util.List;
 
@@ -24,12 +23,13 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
 
     private Configurator config = Configurator.getInstance();
     private ShowTaskFragment stFragment;
-    private List<ListItem> listItemsAdapter;
+    private List<Task> listTasks;
     private Context context;
+    DBTasksHelper dbTasksHelper;
 
 
-    public RecyclerViewAdapter(List<ListItem> listItems, Context context) {
-        this.listItemsAdapter = listItems;
+    public RecyclerViewAdapter(List<Task> listTasks, Context context) {
+        this.listTasks = listTasks;
         this.context = context;
     }
 
@@ -41,17 +41,16 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
 
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
-        ListItem li = listItemsAdapter.get(position);
+        Task li = listTasks.get(position);
         //установка отображения элементов на странице
-        holder.name.setText(li.getName());
+        holder.name.setText(li.getDesription());
         holder.state.setText(li.getState());
-
 
     }
 
     @Override
     public int getItemCount() {
-        return listItemsAdapter.size();
+        return listTasks.size();
     }
 
 
@@ -66,7 +65,6 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
             name = (TextView) itemView.findViewById(R.id.Name);
             state = (TextView) itemView.findViewById(R.id.State);
             itemView.setOnClickListener(this);
-
         }
 
 
@@ -76,10 +74,11 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
             AppCompatActivity activity = (AppCompatActivity) v.getContext();
             FragmentTransaction ft = activity.getSupportFragmentManager().beginTransaction();
             stFragment = new ShowTaskFragment();
-            ft.replace(R.id.container, stFragment);
+            ft.replace(R.id.container, stFragment, "Main");
             ft.addToBackStack(null);
             ft.commit();
         }
+
     }
 
 }

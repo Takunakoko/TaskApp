@@ -17,4 +17,9 @@
         android:title="Name"
         android:icon="@drawable/ic_account_circle_black_24dp"
         yourapp:showAsAction="always"/>
+    <item
+        android:id="@+id/addTask"
+        android:icon="@drawable/ic_task_add_black_24dp"
+        android:title="Add"
+        yourapp:showAsAction="always" />
 </menu>
