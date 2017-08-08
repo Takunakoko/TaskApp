@@ -27,8 +27,8 @@ public class ShowTaskFragment extends Fragment implements ViewPager.OnPageChange
     private ViewPager mViewPager;
     private UpdateFragment uFragment;
     private Configurator configurator = Configurator.getInstance();
-    DBTasksHelper dbTasksHelper;
-
+    private DBTasksHelper dbTasksHelper;
+    private View rootView;
     public ShowTaskFragment() {
     }
 
@@ -40,19 +40,15 @@ public class ShowTaskFragment extends Fragment implements ViewPager.OnPageChange
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View rootView = inflater.inflate(R.layout.fragment_show_task, container, false);
+        rootView = inflater.inflate(R.layout.fragment_show_task, container, false);
         mViewPager = (ViewPager) rootView.findViewById(R.id.viewPager);
-        dbTasksHelper = new DBTasksHelper(rootView.getContext());
-        mViewPagerAdapter = new ViewPagerAdapter(dbTasksHelper.getAllTasks(), getFragmentManager());
-        mViewPager.setAdapter(mViewPagerAdapter);
-        mViewPager.setCurrentItem(configurator.getAdapterPosition());
-        TaskContainer.setSelectedTask(dbTasksHelper.getAllTasks().get(configurator.getAdapterPosition()));
+        initPW();
 
         mViewPager.addOnPageChangeListener(this);
 
         setHasOptionsMenu(true);
-        ((AppCompatActivity) getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        ((AppCompatActivity) getActivity()).getSupportActionBar().setDisplayShowHomeEnabled(true);
+        //((AppCompatActivity) getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        //((AppCompatActivity) getActivity()).getSupportActionBar().setDisplayShowHomeEnabled(true);
 
         return rootView;
 
@@ -67,7 +63,7 @@ public class ShowTaskFragment extends Fragment implements ViewPager.OnPageChange
 
     @Override
     public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-
+        mViewPagerAdapter.notifyDataSetChanged();
     }
 
     @Override
@@ -106,5 +102,12 @@ public class ShowTaskFragment extends Fragment implements ViewPager.OnPageChange
     }
 
 
+    public void initPW(){
+        dbTasksHelper = new DBTasksHelper(rootView.getContext());
+        mViewPagerAdapter = new ViewPagerAdapter(dbTasksHelper.getAllTasks(), getFragmentManager());
+        mViewPager.setAdapter(mViewPagerAdapter);
+        mViewPager.setCurrentItem(configurator.getAdapterPosition());
+        TaskContainer.setSelectedTask(dbTasksHelper.getAllTasks().get(configurator.getAdapterPosition()));
+    }
 
 }

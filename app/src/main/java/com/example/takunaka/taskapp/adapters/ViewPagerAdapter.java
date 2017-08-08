@@ -62,6 +62,8 @@ public class ViewPagerAdapter extends FragmentStatePagerAdapter {
         return "Title";
     }
 
+
+
     public static class ViewPagerFragment extends Fragment {
 
         private TextView name;
@@ -69,8 +71,9 @@ public class ViewPagerAdapter extends FragmentStatePagerAdapter {
         private TextView state;
         private Button addSubItemBtn;
         private View rootView;
+        private RecyclerView rv;
         private DBSubTasksHelper dbSubTasksHelper;
-        RecyclerViewSubItemAdapter adapter;
+        private RecyclerViewSubItemAdapter adapter;
 
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle saveInstanceState) {
@@ -96,13 +99,7 @@ public class ViewPagerAdapter extends FragmentStatePagerAdapter {
             date.setText(args.getString("Date"));
             state.setText(args.getString("State"));
 
-            dbSubTasksHelper = new DBSubTasksHelper(rootView.getContext());
-            RecyclerView rv = (RecyclerView) rootView.findViewById(R.id.recyclerView2);
-            adapter = new RecyclerViewSubItemAdapter(dbSubTasksHelper.getAllSubTasks(), rootView.getContext());
-            rv.setHasFixedSize(true);
-            rv.setAdapter(adapter);
-            LinearLayoutManager llm = new LinearLayoutManager(rootView.getContext());
-            rv.setLayoutManager(llm);
+            initRV();
             return rootView;
         }
 
@@ -112,6 +109,7 @@ public class ViewPagerAdapter extends FragmentStatePagerAdapter {
             final DBSubTasksHelper dbSubTasksHelper = new DBSubTasksHelper(getContext());
             final SQLiteDatabase db = dbSubTasksHelper.getWritableDatabase();
             final ContentValues cv = new ContentValues();
+
             AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
             final View dialogview = View.inflate(getContext(), R.layout.dialog_add_description, null);
             builder.setTitle("Добавить дело")
@@ -125,7 +123,7 @@ public class ViewPagerAdapter extends FragmentStatePagerAdapter {
                             cv.put(DBSubTasksHelper.KEY_NAMEID, UserContainer.getSelectedID());
                             cv.put(DBSubTasksHelper.KEY_TASKID, TaskContainer.getSelectedTaskID());
                             db.insert(DBSubTasksHelper.TABLE_SUBTASK, null, cv);
-                            adapter.notifyDataSetChanged();
+                            initRV();
                         }
                     })
                     .setNegativeButton("Отмена", new DialogInterface.OnClickListener() {
@@ -140,6 +138,22 @@ public class ViewPagerAdapter extends FragmentStatePagerAdapter {
         }
 
 
+        public void initRV(){
+            dbSubTasksHelper = new DBSubTasksHelper(rootView.getContext());
+            rv = (RecyclerView) rootView.findViewById(R.id.recyclerView2);
+            adapter = new RecyclerViewSubItemAdapter(dbSubTasksHelper.getAllSubTasks(), rootView.getContext());
+            rv.setHasFixedSize(true);
+            rv.setAdapter(adapter);
+            LinearLayoutManager llm = new LinearLayoutManager(rootView.getContext());
+            rv.setLayoutManager(llm);
+        }
+
+        public void reAdapter(){
+            adapter = new RecyclerViewSubItemAdapter(dbSubTasksHelper.getAllSubTasks(), rootView.getContext());
+            rv.setAdapter(adapter);
+        }
+
     }
+
 
 }
