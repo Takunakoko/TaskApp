@@ -11,11 +11,14 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 
 import com.example.takunaka.taskapp.Configurator;
 import com.example.takunaka.taskapp.R;
 import com.example.takunaka.taskapp.adapters.ViewPagerAdapter;
 import com.example.takunaka.taskapp.sql.DBTasksHelper;
+import com.example.takunaka.taskapp.sqlQuerry.Task;
+import com.example.takunaka.taskapp.sqlQuerry.TaskContainer;
 
 
 public class ShowTaskFragment extends Fragment implements ViewPager.OnPageChangeListener {
@@ -43,21 +46,22 @@ public class ShowTaskFragment extends Fragment implements ViewPager.OnPageChange
         mViewPagerAdapter = new ViewPagerAdapter(dbTasksHelper.getAllTasks(), getFragmentManager());
         mViewPager.setAdapter(mViewPagerAdapter);
         mViewPager.setCurrentItem(configurator.getAdapterPosition());
+        TaskContainer.setSelectedTask(dbTasksHelper.getAllTasks().get(configurator.getAdapterPosition()));
+
         mViewPager.addOnPageChangeListener(this);
 
         setHasOptionsMenu(true);
         ((AppCompatActivity) getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         ((AppCompatActivity) getActivity()).getSupportActionBar().setDisplayShowHomeEnabled(true);
+
         return rootView;
+
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        mViewPagerAdapter = new ViewPagerAdapter(dbTasksHelper.getAllTasks(), getFragmentManager());
-        mViewPager.setAdapter(mViewPagerAdapter);
-        mViewPager.setCurrentItem(configurator.getAdapterPosition());
-
+        mViewPagerAdapter.notifyDataSetChanged();
 
     }
 
@@ -91,7 +95,6 @@ public class ShowTaskFragment extends Fragment implements ViewPager.OnPageChange
 
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
         if (id == R.id.action_edit) {
             FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
             uFragment = new UpdateFragment();
@@ -99,8 +102,9 @@ public class ShowTaskFragment extends Fragment implements ViewPager.OnPageChange
             fragmentTransaction.addToBackStack(null);
             fragmentTransaction.commit();
         }
-
         return super.onOptionsItemSelected(item);
     }
+
+
 
 }

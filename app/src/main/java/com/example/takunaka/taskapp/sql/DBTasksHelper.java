@@ -8,6 +8,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 
 import com.example.takunaka.taskapp.sqlQuerry.SubTask;
 import com.example.takunaka.taskapp.sqlQuerry.Task;
+import com.example.takunaka.taskapp.sqlQuerry.TaskContainer;
 import com.example.takunaka.taskapp.sqlQuerry.UserContainer;
 
 import java.util.ArrayList;
@@ -19,7 +20,7 @@ import java.util.List;
 
 public class DBTasksHelper extends SQLiteOpenHelper {
 
-   public static final int DATABASE_VERSION = 1;
+   public static final int DATABASE_VERSION = 2;
    public static final String DATABASE_NAME = "TasksDB";
    public static final String TABLE_TASKS = "Tasks";
 
@@ -72,14 +73,5 @@ public class DBTasksHelper extends SQLiteOpenHelper {
 
         return tasks;
     }
-
-
-    public void updateRow(String query){
-        SQLiteDatabase db = this.getWritableDatabase();
-        db.rawQuery(query, null);
-        db.close();
-    }
-
-
 
 }

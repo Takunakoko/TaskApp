@@ -1,6 +1,8 @@
 package com.example.takunaka.taskapp.adapters;
 
+import android.content.ContentValues;
 import android.content.DialogInterface;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -12,12 +14,14 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
 
 import com.example.takunaka.taskapp.R;
 import com.example.takunaka.taskapp.sql.DBSubTasksHelper;
 import com.example.takunaka.taskapp.sqlQuerry.Task;
 import com.example.takunaka.taskapp.sqlQuerry.TaskContainer;
+import com.example.takunaka.taskapp.sqlQuerry.UserContainer;
 
 import java.util.List;
 
@@ -40,10 +44,6 @@ public class ViewPagerAdapter extends FragmentStatePagerAdapter {
     public Fragment getItem(int position) {
         Task li = listTaskAdapt.get(position);
         Fragment fragment = new ViewPagerFragment();
-        TaskContainer.setSelectedTaskID(li.getTaskID());
-        TaskContainer.setSelectedDesription(li.getDesription());
-        TaskContainer.setSelectedDate(li.getDate());
-        TaskContainer.setSelectedState(li.getState());
         Bundle args = new Bundle();
         args.putString("Name", li.getDesription());
         args.putString("Date", li.getDate());
@@ -79,9 +79,9 @@ public class ViewPagerAdapter extends FragmentStatePagerAdapter {
 
             rootView = inflater.inflate(R.layout.viewpager_item, container, false);
 
-            name = (TextView) rootView.findViewById(R.id.NameUpdateField);
-            date = (TextView) rootView.findViewById(R.id.DateUpdateField);
-            state = (TextView) rootView.findViewById(R.id.StateUpdateField);
+            name = (TextView) rootView.findViewById(R.id.NameCreateField);
+            date = (TextView) rootView.findViewById(R.id.DateCreateField);
+            state = (TextView) rootView.findViewById(R.id.StateCreateField);
             addSubItemBtn = (Button) rootView.findViewById(R.id.addSubShowTaskButton);
 
 
@@ -109,13 +109,23 @@ public class ViewPagerAdapter extends FragmentStatePagerAdapter {
 
 
         public void showDialog() {
+            final DBSubTasksHelper dbSubTasksHelper = new DBSubTasksHelper(getContext());
+            final SQLiteDatabase db = dbSubTasksHelper.getWritableDatabase();
+            final ContentValues cv = new ContentValues();
             AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+            final View dialogview = View.inflate(getContext(), R.layout.dialog_add_description, null);
             builder.setTitle("Добавить дело")
-                    .setView(R.layout.dialog_add_description)
+                    .setView(dialogview)
                     .setPositiveButton("Добавить", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
-
+                            EditText description = (EditText) dialogview.findViewById(R.id.descriptionDialog);
+                            cv.put(DBSubTasksHelper.KEY_DESCRIPTION, description.getText().toString());
+                            cv.put(DBSubTasksHelper.KEY_STATE, "В работе");
+                            cv.put(DBSubTasksHelper.KEY_NAMEID, UserContainer.getSelectedID());
+                            cv.put(DBSubTasksHelper.KEY_TASKID, TaskContainer.getSelectedTaskID());
+                            db.insert(DBSubTasksHelper.TABLE_SUBTASK, null, cv);
+                            adapter.notifyDataSetChanged();
                         }
                     })
                     .setNegativeButton("Отмена", new DialogInterface.OnClickListener() {

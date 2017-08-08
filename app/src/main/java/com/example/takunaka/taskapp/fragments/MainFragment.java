@@ -1,6 +1,8 @@
 package com.example.takunaka.taskapp.fragments;
 
 
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
@@ -37,10 +39,11 @@ public class MainFragment extends Fragment {
 
         dbTasksHelper = new DBTasksHelper(rootView.getContext());
         rv.setHasFixedSize(true);
-        adapter = new RecyclerViewAdapter(dbTasksHelper.getAllTasks(), inflater.getContext());
-        rv.setAdapter(adapter);
 
-
+        SQLiteDatabase db = dbTasksHelper.getWritableDatabase();
+        Cursor cursor = db.query(DBTasksHelper.TABLE_TASKS, null, null, null, null, null ,null , null);
+            adapter = new RecyclerViewAdapter(dbTasksHelper.getAllTasks(), inflater.getContext());
+            rv.setAdapter(adapter);
 
         LinearLayoutManager llm = new LinearLayoutManager(getActivity());
         rv.setLayoutManager(llm);
@@ -51,8 +54,6 @@ public class MainFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        notifyData();
-
     }
 
     public void notifyData(){

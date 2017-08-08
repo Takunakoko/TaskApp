@@ -1,16 +1,14 @@
 package com.example.takunaka.taskapp.fragments;
 
+import android.app.DatePickerDialog;
+import android.app.Dialog;
 import android.content.ContentValues;
-import android.content.Context;
-import android.content.DialogInterface;
 import android.database.sqlite.SQLiteDatabase;
-import android.net.Uri;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
-import android.support.v7.app.AlertDialog;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -18,37 +16,36 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.takunaka.taskapp.R;
-import com.example.takunaka.taskapp.adapters.RecyclerViewCreateSubItemAdapt;
-import com.example.takunaka.taskapp.adapters.RecyclerViewSubItemAdapter;
-import com.example.takunaka.taskapp.sql.DBSubTasksHelper;
 import com.example.takunaka.taskapp.sql.DBTasksHelper;
 import com.example.takunaka.taskapp.sqlQuerry.UserContainer;
 
+import java.util.Calendar;
 
-public class CreateTaskFragment extends Fragment {
+
+public class CreateTaskFragment extends Fragment{
 
 
     private DBTasksHelper dbTasksHelper;
     private SQLiteDatabase dbTasks;
     private EditText name;
-    private EditText date;
+    private TextView date;
     private String nameText;
     private String dateText;
+    private String dateCalSet;
     private MainFragment mainFragment;
-    private Button addSubItemBtn;
-    DBSubTasksHelper dbSubTasksHelper;
-
-    View rootView;
+    private View rootView;
+    private int year_x, month_x, day_x;
+    private DatePickerDialog.OnDateSetListener mDateSetListner;
 
     public CreateTaskFragment() {
 
     }
-
-
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -63,31 +60,39 @@ public class CreateTaskFragment extends Fragment {
 
         dbTasksHelper = new DBTasksHelper(getContext());
         dbTasks = dbTasksHelper.getWritableDatabase();
-        name = (EditText) rootView.findViewById(R.id.NameUpdateField);
-        date = (EditText) rootView.findViewById(R.id.DateUpdateField);
-        nameText = String.valueOf(name.getText());
-        dateText = String.valueOf(date.getText());
+        name = (EditText) rootView.findViewById(R.id.NameCreateField);
+        date = (TextView) rootView.findViewById(R.id.DateCreateField);
+        initCal();
 
-        setHasOptionsMenu(true);
-
-        addSubItemBtn = (Button) rootView.findViewById(R.id.addSubCreateTaskButton);
-        addSubItemBtn.setOnClickListener(new View.OnClickListener() {
+        date.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                showDialog();
-                RecyclerView rv = (RecyclerView) rootView.findViewById(R.id.recyclerViewCreate);
-                RecyclerViewCreateSubItemAdapt adapter = new RecyclerViewCreateSubItemAdapt(dbSubTasksHelper.getAllSubTasks(), rootView.getContext());
-                rv.setHasFixedSize(true);
-                rv.setAdapter(adapter);
-                LinearLayoutManager llm = new LinearLayoutManager(rootView.getContext());
-                rv.setLayoutManager(llm);
+
+                DatePickerDialog dialog = new DatePickerDialog(getContext(), android.R.style.Theme_Holo_Light,
+                        mDateSetListner, year_x, month_x, day_x);
+                dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+                dialog.show();
             }
         });
 
+        mDateSetListner = new DatePickerDialog.OnDateSetListener() {
+            @Override
+            public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
+                month = month + 1;
+                year_x = year;
+                month_x = month;
+                day_x = dayOfMonth;
+                dateCalSet = dayOfMonth + "." + month + "." + year;
+                date.setText(dateCalSet);
+            }
+        };
 
-
+        setHasOptionsMenu(true);
         return rootView;
     }
+
+
+
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater menuInflater) {
@@ -104,6 +109,8 @@ public class CreateTaskFragment extends Fragment {
         int id = item.getItemId();
 
         if (id == R.id.action_save) {
+            nameText = String.valueOf(name.getText());
+            dateText = String.valueOf(date.getText());
             final ContentValues cv = new ContentValues();
             cv.put(DBTasksHelper.KEY_DESCRIPTION, nameText);
             cv.put(DBTasksHelper.KEY_DATE, dateText);
@@ -123,33 +130,26 @@ public class CreateTaskFragment extends Fragment {
         return super.onOptionsItemSelected(item);
     }
 
-    public void showDialog() {
-        dbSubTasksHelper.getWritableDatabase();
-        final ContentValues cv = new ContentValues();
-        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-        builder.setTitle("Добавить дело")
-                .setView(R.layout.dialog_add_description)
-                .setPositiveButton("Добавить", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        View view = (View) dialog;
-                        EditText description = (EditText) view.findViewById(R.id.descriptionDialog);
-                        //cv.put(dbSubTasksHelper.KEY_DESCRIPTION, description.getText().toString());
-
-                        //TODO сохранять сабтаски в лист, затем отправлять их в базу данных для отображения
-                    }
-                })
-                .setNegativeButton("Отмена", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.cancel();
-
-                    }
-                });
-        AlertDialog alert = builder.create();
-        alert.show();
-
+    public Dialog showDatePickDialog(){
+        return new DatePickerDialog(getContext(), dPickerListner, year_x, month_x, day_x );
     }
 
+    private DatePickerDialog.OnDateSetListener dPickerListner
+            = new DatePickerDialog.OnDateSetListener(){
+
+        @Override
+        public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
+            year_x = year;
+            month_x = month;
+            day_x = dayOfMonth;
+        }
+    };
+
+    public void initCal(){
+        final Calendar cal = Calendar.getInstance();
+        year_x = cal.get(Calendar.YEAR);
+        month_x = cal.get(Calendar.MONTH);
+        day_x = cal.get(Calendar.DAY_OF_MONTH);
+    }
 
 }

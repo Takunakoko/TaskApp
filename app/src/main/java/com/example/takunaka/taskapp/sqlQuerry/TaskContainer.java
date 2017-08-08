@@ -13,6 +13,7 @@ public class TaskContainer {
     private static String selectedDesription;
     private static String selectedDate;
     private static String selectedState;
+    private static Task selectedTask;
 
 
     public static int getSelectedTaskID() {
@@ -45,5 +46,13 @@ public class TaskContainer {
 
     public static void setSelectedState(String selectedState) {
         TaskContainer.selectedState = selectedState;
+    }
+
+    public static Task getSelectedTask() {
+        return selectedTask;
+    }
+
+    public static void setSelectedTask(Task selectedTask) {
+        TaskContainer.selectedTask = selectedTask;
     }
 }

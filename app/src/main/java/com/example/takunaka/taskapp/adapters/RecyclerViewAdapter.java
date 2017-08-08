@@ -14,6 +14,7 @@ import com.example.takunaka.taskapp.R;
 import com.example.takunaka.taskapp.fragments.ShowTaskFragment;
 import com.example.takunaka.taskapp.sql.DBTasksHelper;
 import com.example.takunaka.taskapp.sqlQuerry.Task;
+import com.example.takunaka.taskapp.sqlQuerry.TaskContainer;
 
 import java.util.List;
 
@@ -71,6 +72,7 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
         @Override
         public void onClick(View v) {
             config.setAdapterPosition(getAdapterPosition());
+            TaskContainer.setSelectedTaskID(getAdapterPosition());
             AppCompatActivity activity = (AppCompatActivity) v.getContext();
             FragmentTransaction ft = activity.getSupportFragmentManager().beginTransaction();
             stFragment = new ShowTaskFragment();

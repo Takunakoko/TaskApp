@@ -64,16 +64,11 @@ public class MainActivity extends AppCompatActivity {
 
         toolbar.setTitle(null);
 
+
+
         //Создание DB
         dbNamesHelper = new DBNamesHelper(this);
         showUsersSelectDialog();
-
-        FragmentTransaction ftrans = getSupportFragmentManager().beginTransaction();
-        mainFragment = new MainFragment();
-        ftrans.replace(R.id.container, mainFragment);
-        ftrans.commit();
-        mainFragment.notifyData();
-
 
     }
 
@@ -84,7 +79,6 @@ public class MainActivity extends AppCompatActivity {
         mainFragment = new MainFragment();
         ftrans.replace(R.id.container, mainFragment);
         ftrans.commit();
-        mainFragment.notifyData();
 
     }
 
@@ -134,6 +128,7 @@ public class MainActivity extends AppCompatActivity {
                         UserContainer.setSelectedName(((Users)spinnerUsers.getSelectedItem()).getUserName());
                         UserContainer.setSelectedSurName(((Users)spinnerUsers.getSelectedItem()).getUserSurName());
                         getSupportActionBar().setSubtitle(UserContainer.getFullName());
+
                     }
                 })
                 .setNegativeButton("Новый пользователь", new DialogInterface.OnClickListener() {
@@ -258,5 +253,10 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-
+    public void doMain(){
+        FragmentTransaction ftrans = getSupportFragmentManager().beginTransaction();
+        mainFragment = new MainFragment();
+        ftrans.replace(R.id.container, mainFragment);
+        ftrans.commit();
+    }
 }

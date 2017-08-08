@@ -1,7 +1,11 @@
 package com.example.takunaka.taskapp.fragments;
 
-import android.content.Context;
-import android.net.Uri;
+import android.app.DatePickerDialog;
+import android.app.Dialog;
+import android.content.ContentValues;
+import android.database.sqlite.SQLiteDatabase;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
@@ -11,25 +15,32 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.Spinner;
+import android.widget.TextView;
 
-import com.example.takunaka.taskapp.Configurator;
 import com.example.takunaka.taskapp.R;
 import com.example.takunaka.taskapp.sql.DBTasksHelper;
+import com.example.takunaka.taskapp.sqlQuerry.Task;
 import com.example.takunaka.taskapp.sqlQuerry.TaskContainer;
+
+import java.util.Calendar;
 
 
 public class UpdateFragment extends Fragment {
 
     private ShowTaskFragment showTaskFragment;
     private EditText name;
-    private EditText date;
-    private EditText state;
+    private TextView date;
+    private Spinner state;
     private DBTasksHelper dbTasksHelper;
+    private String selectedID;
+    private int year_x, month_x, day_x;
+    private DatePickerDialog.OnDateSetListener mDateSetListner;
 
     public UpdateFragment() {
     }
-
 
 
     @Override
@@ -45,8 +56,39 @@ public class UpdateFragment extends Fragment {
         setHasOptionsMenu(true);
         View rootView = inflater.inflate(R.layout.fragment_update, container, false);
         name = (EditText) rootView.findViewById(R.id.NameUpdateField);
-        date = (EditText) rootView.findViewById(R.id.DateUpdateField);
-        state = (EditText) rootView.findViewById(R.id.StateUpdateField);
+        date = (TextView) rootView.findViewById(R.id.DateUpdateField);
+        state = (Spinner) rootView.findViewById(R.id.StateUpdateField);
+
+        name.setText(TaskContainer.getSelectedTask().getDesription());
+        date.setText(TaskContainer.getSelectedTask().getDate());
+        selectedID = String.valueOf(TaskContainer.getSelectedTask().getTaskID());
+        if(TaskContainer.getSelectedTask().getState().equals("Выполняется")){
+            state.setSelection(0);
+        }else state.setSelection(1);
+
+
+        initCal();
+
+        date.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                DatePickerDialog dialog = new DatePickerDialog(getContext(), android.R.style.Theme_Holo_Light,
+                        mDateSetListner, year_x, month_x, day_x);
+                dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+                dialog.show();
+            }
+        });
+
+        mDateSetListner = new DatePickerDialog.OnDateSetListener() {
+            @Override
+            public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
+                year_x = year;
+                month_x = month;
+                day_x = dayOfMonth;
+                date.setText(dayOfMonth + "." + month + "." + year);
+            }
+        };
 
         return rootView;
 
@@ -59,6 +101,7 @@ public class UpdateFragment extends Fragment {
         menu.findItem(R.id.action_edit).setVisible(false);
         menu.findItem(R.id.account_action).setVisible(false);
         menu.findItem(R.id.action_save).setVisible(true);
+        menu.findItem(R.id.addTask).setVisible(false);
 
     }
 
@@ -67,16 +110,17 @@ public class UpdateFragment extends Fragment {
 
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
+
         if (id == R.id.action_save) {
             dbTasksHelper = new DBTasksHelper(getContext());
+            SQLiteDatabase db = dbTasksHelper.getWritableDatabase();
 
-            dbTasksHelper.updateRow("UPDATE " + dbTasksHelper.TABLE_TASKS + " SET "
-                    + dbTasksHelper.KEY_DESCRIPTION + " = " + name.getText().toString() + ", "
-                    + dbTasksHelper.KEY_DATE + " = " + date.getText().toString() + ", "
-                    + dbTasksHelper.KEY_STATE + " = " + state.getText().toString()
-                    + " WHERE " + dbTasksHelper.KEY_ID + " = " + TaskContainer.getSelectedTaskID());
+            ContentValues cv = new ContentValues();
+            cv.put(DBTasksHelper.KEY_DESCRIPTION, name.getText().toString());
+            cv.put(DBTasksHelper.KEY_DATE, date.getText().toString());
+            cv.put(DBTasksHelper.KEY_STATE, state.getSelectedItem().toString());
 
+            db.update(dbTasksHelper.TABLE_TASKS, cv, dbTasksHelper.KEY_ID +" = " + selectedID, null);
 
             FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
             showTaskFragment = new ShowTaskFragment();
@@ -86,6 +130,31 @@ public class UpdateFragment extends Fragment {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+
+    public Dialog showDatePickDialog(){
+        return new DatePickerDialog(getContext(), dPickerListner, year_x, month_x, day_x );
+    }
+
+    private DatePickerDialog.OnDateSetListener dPickerListner
+            = new DatePickerDialog.OnDateSetListener(){
+
+        @Override
+        public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
+            year_x = year;
+            month_x = month;
+            day_x = dayOfMonth;
+        }
+    };
+
+    public void initCal(){
+        final Calendar cal = Calendar.getInstance();
+        String[] date = TaskContainer.getSelectedTask().getDate().split("\\.");
+        year_x = Integer.valueOf(date[2]);
+        int month = Integer.valueOf(date[1]);
+        month_x = month - 1;
+        day_x = Integer.valueOf(date[0]);
     }
 
 }

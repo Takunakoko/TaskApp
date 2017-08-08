@@ -17,8 +17,8 @@ import java.util.List;
 public class DBNamesHelper extends SQLiteOpenHelper {
 
    public static final int DATABASE_VERSION = 1;
-   public static final String DATABASE_NAME = "LNamesDB";
-   public static final String TABLE_NAMES = "LNames";
+   public static final String DATABASE_NAME = "NamesDB";
+   public static final String TABLE_NAMES = "Names";
 
    public static final String KEY_ID = "_id";
    public static final String KEY_NAME = "_name";
@@ -47,7 +47,7 @@ public class DBNamesHelper extends SQLiteOpenHelper {
     public List<Users> getAllNames(){
         List<Users> names = new ArrayList<Users>();
 
-        String selectQuery = "SELECT  * FROM " + TABLE_NAMES;
+        String selectQuery = "SELECT * FROM " + TABLE_NAMES;
 
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = db.rawQuery(selectQuery, null);
