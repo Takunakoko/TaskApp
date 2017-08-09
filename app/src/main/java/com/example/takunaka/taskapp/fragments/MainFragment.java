@@ -41,9 +41,8 @@ public class MainFragment extends Fragment {
         rv.setHasFixedSize(true);
 
         SQLiteDatabase db = dbTasksHelper.getWritableDatabase();
-        Cursor cursor = db.query(DBTasksHelper.TABLE_TASKS, null, null, null, null, null ,null , null);
-            adapter = new RecyclerViewAdapter(dbTasksHelper.getAllTasks(), inflater.getContext());
-            rv.setAdapter(adapter);
+        adapter = new RecyclerViewAdapter(dbTasksHelper.getAllTasks(), inflater.getContext());
+        rv.setAdapter(adapter);
 
         LinearLayoutManager llm = new LinearLayoutManager(getActivity());
         rv.setLayoutManager(llm);

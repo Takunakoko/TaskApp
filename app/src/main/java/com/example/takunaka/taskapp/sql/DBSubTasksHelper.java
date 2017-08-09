@@ -74,12 +74,4 @@ public class DBSubTasksHelper extends SQLiteOpenHelper {
     }
 
 
-    public void updateRow(String query){
-        SQLiteDatabase db = this.getWritableDatabase();
-        db.rawQuery(query, null);
-        db.close();
-    }
-
-
-
 }

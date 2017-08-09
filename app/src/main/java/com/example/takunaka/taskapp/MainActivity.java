@@ -6,26 +6,22 @@ import android.content.DialogInterface;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.view.ContextThemeWrapper;
 import android.support.v7.widget.Toolbar;
-import android.view.View;
+import android.view.ContextThemeWrapper;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.Toast;
 
-
-import com.example.takunaka.taskapp.adapters.ViewPagerAdapter;
 import com.example.takunaka.taskapp.fragments.CreateTaskFragment;
 import com.example.takunaka.taskapp.fragments.MainFragment;
 import com.example.takunaka.taskapp.sql.DBNamesHelper;
-import com.example.takunaka.taskapp.sql.DBTasksHelper;
 import com.example.takunaka.taskapp.sqlQuerry.UserContainer;
 import com.example.takunaka.taskapp.sqlQuerry.Users;
 

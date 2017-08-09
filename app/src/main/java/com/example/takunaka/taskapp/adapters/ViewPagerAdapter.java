@@ -49,7 +49,7 @@ public class ViewPagerAdapter extends FragmentStatePagerAdapter {
         Task li = listTaskAdapt.get(position);
         Fragment fragment = new ViewPagerFragment();
         Bundle args = new Bundle();
-        args.putInt("ID", position);
+        args.putInt("ID", li.getTaskID());
         args.putString("Name", li.getDesription());
         args.putString("Date", li.getDate());
         args.putString("State", li.getState());
@@ -98,6 +98,7 @@ public class ViewPagerAdapter extends FragmentStatePagerAdapter {
                 @Override
                 public void onClick(View v) {
                     showDialog();
+
                 }
             });
 
@@ -108,7 +109,7 @@ public class ViewPagerAdapter extends FragmentStatePagerAdapter {
 
             dbSubTasksHelper = new DBSubTasksHelper(rootView.getContext());
             rv = (RecyclerView) rootView.findViewById(R.id.recyclerView2);
-            adapter = new RecyclerViewSubItemAdapter(dbSubTasksHelper.getAllSubTasks(args.getInt("ID")), rootView.getContext());
+            adapter = new RecyclerViewSubItemAdapter(dbSubTasksHelper.getAllSubTasks(selectedID), rootView.getContext());
             rv.setHasFixedSize(true);
             rv.setAdapter(adapter);
             LinearLayoutManager llm = new LinearLayoutManager(rootView.getContext());
@@ -135,9 +136,9 @@ public class ViewPagerAdapter extends FragmentStatePagerAdapter {
                             cv.put(DBSubTasksHelper.KEY_DESCRIPTION, description.getText().toString());
                             cv.put(DBSubTasksHelper.KEY_STATE, "В работе");
                             cv.put(DBSubTasksHelper.KEY_NAMEID, UserContainer.getSelectedID());
-                            cv.put(DBSubTasksHelper.KEY_TASKID, TaskContainer.getSelectedTaskID());
+                            cv.put(DBSubTasksHelper.KEY_TASKID, selectedID);
                             db.insert(DBSubTasksHelper.TABLE_SUBTASK, null, cv);
-                            adapter.updateSet(dbSubTasksHelper.getAllSubTasks(ShowTaskFragment.pos));
+                            adapter.updateSet(dbSubTasksHelper.getAllSubTasks(selectedID));
                             adapter.notifyDataSetChanged();
                         }
                     })
@@ -150,8 +151,8 @@ public class ViewPagerAdapter extends FragmentStatePagerAdapter {
                     });
             AlertDialog alert = builder.create();
             alert.show();
-
         }
+
 
     }
 
