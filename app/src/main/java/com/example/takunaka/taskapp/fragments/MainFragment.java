@@ -56,8 +56,4 @@ public class MainFragment extends Fragment {
         super.onResume();
     }
 
-    public void notifyData(){
-        adapter.notifyDataSetChanged();
-    }
-
 }

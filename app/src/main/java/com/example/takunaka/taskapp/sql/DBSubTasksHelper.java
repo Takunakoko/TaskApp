@@ -51,12 +51,12 @@ public class DBSubTasksHelper extends SQLiteOpenHelper {
         onCreate(db);
     }
 
-    public List<SubTask> getAllSubTasks(){
+    public List<SubTask> getAllSubTasks(int id){
         List<SubTask> subTasks = new ArrayList<SubTask>();
 
         String selectQuery = "SELECT  * FROM " + TABLE_SUBTASK + " WHERE "
                 + KEY_NAMEID + " = " + String.valueOf(UserContainer.getSelectedID()) + " AND "
-                + KEY_TASKID + " = " + String.valueOf(TaskContainer.getSelectedTaskID());
+                + KEY_TASKID + " = " + String.valueOf(id);
 
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = db.rawQuery(selectQuery, null);

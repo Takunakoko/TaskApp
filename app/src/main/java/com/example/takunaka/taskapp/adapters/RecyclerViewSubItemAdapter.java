@@ -27,6 +27,11 @@ public class RecyclerViewSubItemAdapter extends RecyclerView.Adapter<RecyclerVie
         this.context = context;
     }
 
+    public void updateSet(List<SubTask> subTasks){
+        this.subItemsAdapter.clear();
+        this.subItemsAdapter = subTasks;
+    }
+
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.sub_item, parent, false);

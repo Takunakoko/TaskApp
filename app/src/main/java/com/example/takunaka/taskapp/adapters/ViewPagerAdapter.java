@@ -18,6 +18,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import com.example.takunaka.taskapp.R;
+import com.example.takunaka.taskapp.fragments.ShowTaskFragment;
 import com.example.takunaka.taskapp.sql.DBSubTasksHelper;
 import com.example.takunaka.taskapp.sqlQuerry.Task;
 import com.example.takunaka.taskapp.sqlQuerry.TaskContainer;
@@ -35,16 +36,20 @@ public class ViewPagerAdapter extends FragmentStatePagerAdapter {
     private FragmentManager fm;
 
 
+
     public ViewPagerAdapter(List<Task> listItems, FragmentManager fm) {
         super(fm);
         this.listTaskAdapt = listItems;
     }
+
+
 
     @Override
     public Fragment getItem(int position) {
         Task li = listTaskAdapt.get(position);
         Fragment fragment = new ViewPagerFragment();
         Bundle args = new Bundle();
+        args.putInt("ID", position);
         args.putString("Name", li.getDesription());
         args.putString("Date", li.getDate());
         args.putString("State", li.getState());
@@ -74,6 +79,7 @@ public class ViewPagerAdapter extends FragmentStatePagerAdapter {
         private RecyclerView rv;
         private DBSubTasksHelper dbSubTasksHelper;
         private RecyclerViewSubItemAdapter adapter;
+        private int selectedID;
 
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle saveInstanceState) {
@@ -98,8 +104,16 @@ public class ViewPagerAdapter extends FragmentStatePagerAdapter {
             name.setText(args.getString("Name"));
             date.setText(args.getString("Date"));
             state.setText(args.getString("State"));
+            selectedID = args.getInt("ID");
 
-            initRV();
+            dbSubTasksHelper = new DBSubTasksHelper(rootView.getContext());
+            rv = (RecyclerView) rootView.findViewById(R.id.recyclerView2);
+            adapter = new RecyclerViewSubItemAdapter(dbSubTasksHelper.getAllSubTasks(args.getInt("ID")), rootView.getContext());
+            rv.setHasFixedSize(true);
+            rv.setAdapter(adapter);
+            LinearLayoutManager llm = new LinearLayoutManager(rootView.getContext());
+            rv.setLayoutManager(llm);
+
             return rootView;
         }
 
@@ -123,7 +137,8 @@ public class ViewPagerAdapter extends FragmentStatePagerAdapter {
                             cv.put(DBSubTasksHelper.KEY_NAMEID, UserContainer.getSelectedID());
                             cv.put(DBSubTasksHelper.KEY_TASKID, TaskContainer.getSelectedTaskID());
                             db.insert(DBSubTasksHelper.TABLE_SUBTASK, null, cv);
-                            initRV();
+                            adapter.updateSet(dbSubTasksHelper.getAllSubTasks(ShowTaskFragment.pos));
+                            adapter.notifyDataSetChanged();
                         }
                     })
                     .setNegativeButton("Отмена", new DialogInterface.OnClickListener() {
@@ -135,22 +150,7 @@ public class ViewPagerAdapter extends FragmentStatePagerAdapter {
                     });
             AlertDialog alert = builder.create();
             alert.show();
-        }
 
-
-        public void initRV(){
-            dbSubTasksHelper = new DBSubTasksHelper(rootView.getContext());
-            rv = (RecyclerView) rootView.findViewById(R.id.recyclerView2);
-            adapter = new RecyclerViewSubItemAdapter(dbSubTasksHelper.getAllSubTasks(), rootView.getContext());
-            rv.setHasFixedSize(true);
-            rv.setAdapter(adapter);
-            LinearLayoutManager llm = new LinearLayoutManager(rootView.getContext());
-            rv.setLayoutManager(llm);
-        }
-
-        public void reAdapter(){
-            adapter = new RecyclerViewSubItemAdapter(dbSubTasksHelper.getAllSubTasks(), rootView.getContext());
-            rv.setAdapter(adapter);
         }
 
     }

@@ -125,7 +125,7 @@ public class UpdateFragment extends Fragment {
             FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
             showTaskFragment = new ShowTaskFragment();
             fragmentTransaction.replace(R.id.container, showTaskFragment, "Update");
-            fragmentTransaction.addToBackStack("Show");
+            fragmentTransaction.addToBackStack(null);
             fragmentTransaction.commit();
         }
 

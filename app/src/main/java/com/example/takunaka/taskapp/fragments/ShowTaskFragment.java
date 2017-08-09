@@ -29,6 +29,7 @@ public class ShowTaskFragment extends Fragment implements ViewPager.OnPageChange
     private Configurator configurator = Configurator.getInstance();
     private DBTasksHelper dbTasksHelper;
     private View rootView;
+    public static int pos;
     public ShowTaskFragment() {
     }
 
@@ -63,7 +64,7 @@ public class ShowTaskFragment extends Fragment implements ViewPager.OnPageChange
 
     @Override
     public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-        mViewPagerAdapter.notifyDataSetChanged();
+        pos = position;
     }
 
     @Override
