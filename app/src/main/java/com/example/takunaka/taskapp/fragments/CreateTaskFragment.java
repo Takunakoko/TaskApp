@@ -3,12 +3,16 @@ package com.example.takunaka.taskapp.fragments;
 import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.content.ContentValues;
+import android.content.DialogInterface;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v7.app.AlertDialog;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -22,16 +26,23 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.takunaka.taskapp.R;
+import com.example.takunaka.taskapp.adapters.RecyclerViewSubItemAdapter;
+import com.example.takunaka.taskapp.adapters.RecyclerViewSubItemOnCreateAdapter;
+import com.example.takunaka.taskapp.sql.DBSubTasksHelper;
 import com.example.takunaka.taskapp.sql.DBTasksHelper;
+import com.example.takunaka.taskapp.sqlQuerry.SubTask;
 import com.example.takunaka.taskapp.sqlQuerry.UserContainer;
 
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
 
 
-public class CreateTaskFragment extends Fragment{
+public class CreateTaskFragment extends Fragment implements View.OnClickListener {
 
 
     private DBTasksHelper dbTasksHelper;
+    private DBSubTasksHelper dbSubTasksHelper;
     private SQLiteDatabase dbTasks;
     private EditText name;
     private TextView date;
@@ -42,6 +53,10 @@ public class CreateTaskFragment extends Fragment{
     private View rootView;
     private int year_x, month_x, day_x;
     private DatePickerDialog.OnDateSetListener mDateSetListner;
+    private Button addSubTsk;
+    private RecyclerViewSubItemOnCreateAdapter adapter;
+    private List<SubTask> subTasks;
+    private RecyclerView rv;
 
     public CreateTaskFragment() {
 
@@ -59,10 +74,20 @@ public class CreateTaskFragment extends Fragment{
         rootView = inflater.inflate(R.layout.fragment_create_task, container, false);
 
         dbTasksHelper = new DBTasksHelper(getContext());
+        dbSubTasksHelper = new DBSubTasksHelper(getContext());
         dbTasks = dbTasksHelper.getWritableDatabase();
         name = (EditText) rootView.findViewById(R.id.NameCreateField);
+        name.requestFocus();
         date = (TextView) rootView.findViewById(R.id.DateCreateField);
+        addSubTsk = (Button) rootView.findViewById(R.id.addSubShowTaskButtonOnCreate);
+        rv = (RecyclerView) rootView.findViewById(R.id.recyclerViewOnCreate);
+
+        subTasks = new ArrayList<>();
+        addSubTsk.setOnClickListener(this);
+
         initCal();
+
+        date.setText(day_x + "." + month_x + "." + year_x);
 
         date.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -87,6 +112,13 @@ public class CreateTaskFragment extends Fragment{
             }
         };
 
+
+        adapter = new RecyclerViewSubItemOnCreateAdapter(subTasks, rootView.getContext());
+        rv.setHasFixedSize(true);
+        rv.setAdapter(adapter);
+        LinearLayoutManager llm = new LinearLayoutManager(rootView.getContext());
+        rv.setLayoutManager(llm);
+
         setHasOptionsMenu(true);
         return rootView;
     }
@@ -100,7 +132,8 @@ public class CreateTaskFragment extends Fragment{
         menu.findItem(R.id.action_edit).setVisible(false);
         menu.findItem(R.id.account_action).setVisible(false);
         menu.findItem(R.id.addTask).setVisible(false);
-        menu.findItem(R.id.action_save).setVisible(true);
+        menu.findItem(R.id.action_save).setVisible(false);
+        menu.findItem(R.id.action_save_create).setVisible(true);
     }
 
     @Override
@@ -108,23 +141,43 @@ public class CreateTaskFragment extends Fragment{
 
         int id = item.getItemId();
 
-        if (id == R.id.action_save) {
+        if (id == R.id.action_save_create) {
             nameText = String.valueOf(name.getText());
             dateText = String.valueOf(date.getText());
-            final ContentValues cv = new ContentValues();
-            cv.put(DBTasksHelper.KEY_DESCRIPTION, nameText);
-            cv.put(DBTasksHelper.KEY_DATE, dateText);
-            cv.put(DBTasksHelper.KEY_STATE, "Выполняется");
-            cv.put(DBTasksHelper.KEY_NAMEID, UserContainer.getSelectedID());
-            dbTasks.insert(DBTasksHelper.TABLE_TASKS, null, cv);
+            if(nameText.equals("") || subTasks.size() == 0){
+                Toast.makeText(getContext(), "Нужно ввести название задачи и создать хотя бы одно дело", Toast.LENGTH_SHORT).show();
+            }else {
+                final ContentValues cv = new ContentValues();
+                cv.put(DBTasksHelper.KEY_DESCRIPTION, nameText);
+                cv.put(DBTasksHelper.KEY_DATE, dateText);
+                cv.put(DBTasksHelper.KEY_STATE, "Выполняется");
+                cv.put(DBTasksHelper.KEY_NAMEID, UserContainer.getSelectedID());
+                dbTasks.insert(DBTasksHelper.TABLE_TASKS, null, cv);
 
-            Toast.makeText(getContext(), "Задача создана", Toast.LENGTH_SHORT).show();
+                SQLiteDatabase dbSubTask = dbSubTasksHelper.getWritableDatabase();
+                int lastID = dbTasksHelper.getLastTaskID();
+                for (SubTask s: subTasks){
+                    final ContentValues cvSub = new ContentValues();
+                    cvSub.put(DBSubTasksHelper.KEY_DESCRIPTION, s.getDescription());
+                    cvSub.put(DBSubTasksHelper.KEY_STATE, s.getState());
+                    cvSub.put(DBSubTasksHelper.KEY_NAMEID, s.getNameID());
+                    cvSub.put(DBSubTasksHelper.KEY_TASKID, lastID);
+                    dbSubTask.insert(dbSubTasksHelper.TABLE_SUBTASK, null, cvSub);
+                }
 
-            FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
-            mainFragment = new MainFragment();
-            fragmentTransaction.replace(R.id.container, mainFragment, "Create");
-            fragmentTransaction.addToBackStack("Main");
-            fragmentTransaction.commit();
+                dbSubTask.close();
+                dbSubTasksHelper.close();
+                dbTasks.close();
+                dbTasksHelper.close();
+                Toast.makeText(getContext(), "Задача создана", Toast.LENGTH_SHORT).show();
+
+                FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
+                mainFragment = new MainFragment();
+                fragmentTransaction.replace(R.id.container, mainFragment, "Create");
+                fragmentTransaction.addToBackStack("Main");
+                fragmentTransaction.commit();
+            }
+
         }
 
         return super.onOptionsItemSelected(item);
@@ -150,6 +203,31 @@ public class CreateTaskFragment extends Fragment{
         year_x = cal.get(Calendar.YEAR);
         month_x = cal.get(Calendar.MONTH);
         day_x = cal.get(Calendar.DAY_OF_MONTH);
+    }
+
+    @Override
+    public void onClick(View v){
+        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+        final View dialogview = View.inflate(getContext(), R.layout.dialog_add_description, null);
+        builder.setTitle("Добавить дело")
+                .setView(dialogview)
+                .setPositiveButton("Добавить", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        EditText description = (EditText) dialogview.findViewById(R.id.descriptionDialog);
+                        subTasks.add(new SubTask(UserContainer.getSelectedID(), description.getText().toString(), "В работе"));
+                        adapter.notifyDataSetChanged();
+                    }
+                })
+                .setNegativeButton("Отмена", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.cancel();
+                    }
+                });
+        AlertDialog alert = builder.create();
+        alert.show();
+
     }
 
 }

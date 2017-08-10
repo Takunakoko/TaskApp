@@ -1,5 +1,6 @@
 package com.example.takunaka.taskapp.sql;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -71,6 +72,16 @@ public class DBSubTasksHelper extends SQLiteOpenHelper {
         db.close();
 
         return subTasks;
+    }
+
+
+
+    public void updateState(int id, int taskID, int nameID){
+        ContentValues cv = new ContentValues();
+        cv.put(this.KEY_STATE, "Закрыта");
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.update(this.TABLE_SUBTASK, cv, this.KEY_ID + " = " + id + " AND " + this.KEY_NAMEID
+                + " = " + nameID + " AND " + this.KEY_TASKID + " = " + taskID, null);
     }
 
 

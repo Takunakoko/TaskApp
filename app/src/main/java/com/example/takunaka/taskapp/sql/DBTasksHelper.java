@@ -74,4 +74,47 @@ public class DBTasksHelper extends SQLiteOpenHelper {
         return tasks;
     }
 
+    public List<Task> getOpenedTask(){
+        String id = String.valueOf(UserContainer.getSelectedID());
+        List<Task> tasks = new ArrayList<Task>();
+
+        String selectQuery = "SELECT * FROM " + TABLE_TASKS
+                + " WHERE " + KEY_NAMEID + " = " + id + " AND " + KEY_STATE + " = " + "'Выполняется'" ;
+
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery(selectQuery, null);
+
+        if (cursor.moveToFirst()) {
+            do {
+                tasks.add(new Task(cursor.getInt(0), cursor.getInt(1), cursor.getString(2), cursor.getString(3), cursor.getString(4)));
+            } while (cursor.moveToNext());
+        }
+
+        cursor.close();
+        db.close();
+
+        return tasks;
+    }
+
+
+    public int getLastTaskID(){
+
+        String selectQuery = "SELECT "+ KEY_ID +" FROM " + TABLE_TASKS
+                + " ORDER BY " + KEY_ID + " DESC LIMIT 1";
+
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery(selectQuery, null);
+        int id = 0;
+        if (cursor.moveToFirst()) {
+            do {
+                id = cursor.getInt(0);
+            } while (cursor.moveToNext());
+        }
+
+        cursor.close();
+        db.close();
+
+        return id;
+    }
+
 }

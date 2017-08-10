@@ -33,6 +33,7 @@ public class MainActivity extends AppCompatActivity {
     private MainFragment mainFragment;
     private CreateTaskFragment createTaskFragment;
     private MenuItem save;
+    private MenuItem saveOnCreate;
     private MenuItem edit;
     private MenuItem account;
     private MenuItem addTask;
@@ -85,10 +86,12 @@ public class MainActivity extends AppCompatActivity {
         edit = menu.findItem(R.id.action_edit);
         account = menu.findItem(R.id.account_action);
         addTask = menu.findItem(R.id.addTask);
+        saveOnCreate = menu.findItem(R.id.action_save_create);
             save.setVisible(false);
             edit.setVisible(false);
             account.setVisible(true);
             addTask.setVisible(true);
+            saveOnCreate.setVisible(false);
         return true;
     }
 
@@ -113,29 +116,32 @@ public class MainActivity extends AppCompatActivity {
     public void showUsersSelectDialog() {
 
         AlertDialog.Builder builder = new AlertDialog.Builder(new ContextThemeWrapper(MainActivity.this, R.style.Theme_AppCompat_Dialog));
-        View view = getLayoutInflater().inflate(R.layout.dialog_login, null);
+        final View view = getLayoutInflater().inflate(R.layout.dialog_login, null);
         spinnerUsers = (Spinner) view.findViewById(R.id.spinnerNamesDialog);
         builder.setTitle("Выбор пользователя")
                 .setView(view)
                 .setPositiveButton("Выбрать", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        UserContainer.setSelectedID(((Users)spinnerUsers.getSelectedItem()).getUserID());
-                        UserContainer.setSelectedName(((Users)spinnerUsers.getSelectedItem()).getUserName());
-                        UserContainer.setSelectedSurName(((Users)spinnerUsers.getSelectedItem()).getUserSurName());
-                        getSupportActionBar().setSubtitle(UserContainer.getFullName());
-                        FragmentTransaction ftrans = getSupportFragmentManager().beginTransaction();
-                        mainFragment = new MainFragment();
-                        ftrans.replace(R.id.container, mainFragment);
-                        ftrans.commit();
-
+                        if (spinnerUsers.getSelectedItem() == null){
+                            Toast.makeText(view.getContext(), "Необходимо создать хотя бы одного пользователя", Toast.LENGTH_SHORT).show();
+                            showNewUserDialog();
+                        }else {
+                            UserContainer.setSelectedID(((Users)spinnerUsers.getSelectedItem()).getUserID());
+                            UserContainer.setSelectedName(((Users)spinnerUsers.getSelectedItem()).getUserName());
+                            UserContainer.setSelectedSurName(((Users)spinnerUsers.getSelectedItem()).getUserSurName());
+                            getSupportActionBar().setSubtitle(UserContainer.getFullName());
+                            FragmentTransaction ftrans = getSupportFragmentManager().beginTransaction();
+                            mainFragment = new MainFragment();
+                            ftrans.replace(R.id.container, mainFragment);
+                            ftrans.commit();
+                        }
                     }
                 })
                 .setNegativeButton("Новый пользователь", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         showNewUserDialog();
-
                     }
                 });
 
@@ -146,7 +152,17 @@ public class MainActivity extends AppCompatActivity {
         arrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinnerUsers.setAdapter(arrayAdapter);
 
+        if(names!=null){
+            for (Users user: names){
+                String name = user.getUserSurName() + " " + user.getUserName();
+                if(name.equals(UserContainer.getFullName())){
+                    spinnerUsers.setSelection(user.getUserID() - 1);
+                }
+            }
+        }
+
         AlertDialog alert = builder.create();
+        alert.setCanceledOnTouchOutside(false);
         alert.show();
 
     }
@@ -165,23 +181,26 @@ public class MainActivity extends AppCompatActivity {
 
                         selName = (EditText) f.findViewById(R.id.nameTextDialog);
                         selSurname = (EditText) f.findViewById(R.id.surNameTextDialog);
+
                         selectedDialogName = String.valueOf(selName.getText());
                         selectedDialogSurname = String.valueOf(selSurname.getText());
-
-                        if(searchForDoubles()){
-                            showWarningDialog();
+                        if (selectedDialogSurname.equals("") && selectedDialogName.equals("")){
+                            Toast.makeText(f.getContext(), "Необходимо ввести Имя или Фамилию", Toast.LENGTH_SHORT).show();
+                            showNewUserDialog();
                         } else {
-                            cv.put(DBNamesHelper.KEY_NAME, selectedDialogName);
-                            cv.put(DBNamesHelper.KEY_SURNAME, selectedDialogSurname);
+                            if(searchForDoubles()){
+                                showWarningDialog();
+                            } else {
+                                cv.put(DBNamesHelper.KEY_NAME, selectedDialogName);
+                                cv.put(DBNamesHelper.KEY_SURNAME, selectedDialogSurname);
 
-                            dbNames.insert(DBNamesHelper.TABLE_NAMES, null, cv);
-                            Toast.makeText(getApplicationContext(), "Пользователь добавлен!", Toast.LENGTH_SHORT).show();
-                            FragmentTransaction ftrans = getSupportFragmentManager().beginTransaction();
-                            createTaskFragment = new CreateTaskFragment();
-                            ftrans.replace(R.id.container, createTaskFragment);
-                            ftrans.commit();
-
+                                dbNames.insert(DBNamesHelper.TABLE_NAMES, null, cv);
+                                Toast.makeText(getApplicationContext(), "Пользователь добавлен!", Toast.LENGTH_SHORT).show();
+                                showUsersSelectDialog();
+                            }
                         }
+
+
 
 
                     }
@@ -194,6 +213,7 @@ public class MainActivity extends AppCompatActivity {
                     }
                 });
         AlertDialog alert = builder.create();
+        alert.setCanceledOnTouchOutside(false);
         alert.show();
 
     }
@@ -239,24 +259,16 @@ public class MainActivity extends AppCompatActivity {
                         cv.put(DBNamesHelper.KEY_SURNAME, selectedDialogSurname);
                         dbNames.insert(DBNamesHelper.TABLE_NAMES, null, cv);
                         Toast.makeText(getApplicationContext(), "Пользователь добавлен!", Toast.LENGTH_SHORT).show();
-                        FragmentTransaction ftrans = getSupportFragmentManager().beginTransaction();
-                        createTaskFragment = new CreateTaskFragment();
-                        ftrans.replace(R.id.container, createTaskFragment);
-                        ftrans.commit();
+                        showUsersSelectDialog();
 
                     }
                 });
 
         AlertDialog alert = builder.create();
+        alert.setCanceledOnTouchOutside(false);
         alert.show();
 
 
     }
 
-    public void doMain(){
-        FragmentTransaction ftrans = getSupportFragmentManager().beginTransaction();
-        mainFragment = new MainFragment();
-        ftrans.replace(R.id.container, mainFragment);
-        ftrans.commit();
-    }
 }

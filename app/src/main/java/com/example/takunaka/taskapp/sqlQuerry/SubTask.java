@@ -19,6 +19,11 @@ public class SubTask {
         this.state = state;
     }
 
+    public SubTask(int nameID, String description, String state) {
+        this.nameID = nameID;
+        this.description = description;
+        this.state = state;
+    }
 
     public int getId() {
         return id;

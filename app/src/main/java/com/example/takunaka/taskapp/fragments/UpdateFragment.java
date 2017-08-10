@@ -19,13 +19,18 @@ import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.example.takunaka.taskapp.Configurator;
 import com.example.takunaka.taskapp.R;
+import com.example.takunaka.taskapp.sql.DBSubTasksHelper;
 import com.example.takunaka.taskapp.sql.DBTasksHelper;
+import com.example.takunaka.taskapp.sqlQuerry.SubTask;
 import com.example.takunaka.taskapp.sqlQuerry.Task;
 import com.example.takunaka.taskapp.sqlQuerry.TaskContainer;
 
 import java.util.Calendar;
+import java.util.List;
 
 
 public class UpdateFragment extends Fragment {
@@ -38,6 +43,7 @@ public class UpdateFragment extends Fragment {
     private String selectedID;
     private int year_x, month_x, day_x;
     private DatePickerDialog.OnDateSetListener mDateSetListner;
+    private Configurator config = Configurator.getInstance();
 
     public UpdateFragment() {
     }
@@ -102,6 +108,7 @@ public class UpdateFragment extends Fragment {
         menu.findItem(R.id.account_action).setVisible(false);
         menu.findItem(R.id.action_save).setVisible(true);
         menu.findItem(R.id.addTask).setVisible(false);
+        menu.findItem(R.id.action_save_create).setVisible(false);
 
     }
 
@@ -112,21 +119,35 @@ public class UpdateFragment extends Fragment {
 
 
         if (id == R.id.action_save) {
-            dbTasksHelper = new DBTasksHelper(getContext());
-            SQLiteDatabase db = dbTasksHelper.getWritableDatabase();
 
-            ContentValues cv = new ContentValues();
-            cv.put(DBTasksHelper.KEY_DESCRIPTION, name.getText().toString());
-            cv.put(DBTasksHelper.KEY_DATE, date.getText().toString());
-            cv.put(DBTasksHelper.KEY_STATE, state.getSelectedItem().toString());
+            if(name.getText().equals("")){
+                Toast.makeText(getContext(), "Название не может быть пустым!", Toast.LENGTH_SHORT).show();
+            }else {
+                dbTasksHelper = new DBTasksHelper(getContext());
+                SQLiteDatabase db = dbTasksHelper.getWritableDatabase();
 
-            db.update(dbTasksHelper.TABLE_TASKS, cv, dbTasksHelper.KEY_ID +" = " + selectedID, null);
+                ContentValues cv = new ContentValues();
+                cv.put(DBTasksHelper.KEY_DESCRIPTION, name.getText().toString());
+                cv.put(DBTasksHelper.KEY_DATE, date.getText().toString());
+                cv.put(DBTasksHelper.KEY_STATE, state.getSelectedItem().toString());
 
-            FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
-            showTaskFragment = new ShowTaskFragment();
-            fragmentTransaction.replace(R.id.container, showTaskFragment, "Update");
-            fragmentTransaction.addToBackStack(null);
-            fragmentTransaction.commit();
+                db.update(dbTasksHelper.TABLE_TASKS, cv, dbTasksHelper.KEY_ID +" = " + selectedID, null);
+
+                if(state.getSelectedItem().toString().equals("Закрыта")){
+                    config.setClosed(true);
+                    DBSubTasksHelper dbSubTasksHelper = new DBSubTasksHelper(getContext());
+                    List<SubTask> subTasks = dbSubTasksHelper.getAllSubTasks(Integer.valueOf(selectedID));
+                    for (SubTask s : subTasks){
+                        dbSubTasksHelper.updateState(s.getId(), s.getTaskID(), s.getNameID());
+                    }
+                }
+
+                FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
+                showTaskFragment = new ShowTaskFragment();
+                fragmentTransaction.replace(R.id.container, showTaskFragment, "Show");
+                fragmentTransaction.commit();
+                db.close();
+            }
         }
 
         return super.onOptionsItemSelected(item);

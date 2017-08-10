@@ -13,6 +13,11 @@
         android:icon="@drawable/ic_save_black_24dp"
         yourapp:showAsAction="always" />
     <item
+        android:id="@+id/action_save_create"
+        android:title="Save"
+        android:icon="@drawable/ic_save_black_24dp"
+        yourapp:showAsAction="always" />
+    <item
         android:id="@+id/account_action"
         android:title="Name"
         android:icon="@drawable/ic_account_circle_black_24dp"

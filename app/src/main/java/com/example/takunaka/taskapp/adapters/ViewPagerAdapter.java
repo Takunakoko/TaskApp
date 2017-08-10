@@ -11,12 +11,16 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import com.example.takunaka.taskapp.Configurator;
 import com.example.takunaka.taskapp.R;
 import com.example.takunaka.taskapp.fragments.ShowTaskFragment;
 import com.example.takunaka.taskapp.sql.DBSubTasksHelper;
@@ -35,13 +39,10 @@ public class ViewPagerAdapter extends FragmentStatePagerAdapter {
     private static List<Task> listTaskAdapt;
     private FragmentManager fm;
 
-
-
     public ViewPagerAdapter(List<Task> listItems, FragmentManager fm) {
         super(fm);
         this.listTaskAdapt = listItems;
     }
-
 
 
     @Override
@@ -67,8 +68,6 @@ public class ViewPagerAdapter extends FragmentStatePagerAdapter {
         return "Title";
     }
 
-
-
     public static class ViewPagerFragment extends Fragment {
 
         private TextView name;
@@ -78,8 +77,9 @@ public class ViewPagerAdapter extends FragmentStatePagerAdapter {
         private View rootView;
         private RecyclerView rv;
         private DBSubTasksHelper dbSubTasksHelper;
-        private RecyclerViewSubItemAdapter adapter;
+        private static RecyclerViewSubItemAdapter adapter;
         private int selectedID;
+        private Configurator config = Configurator.getInstance();
 
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle saveInstanceState) {
@@ -109,11 +109,17 @@ public class ViewPagerAdapter extends FragmentStatePagerAdapter {
 
             dbSubTasksHelper = new DBSubTasksHelper(rootView.getContext());
             rv = (RecyclerView) rootView.findViewById(R.id.recyclerView2);
-            adapter = new RecyclerViewSubItemAdapter(dbSubTasksHelper.getAllSubTasks(selectedID), rootView.getContext());
-            rv.setHasFixedSize(true);
-            rv.setAdapter(adapter);
-            LinearLayoutManager llm = new LinearLayoutManager(rootView.getContext());
-            rv.setLayoutManager(llm);
+
+            if(state.getText().equals("Закрыта")){
+                config.setClosed(true);
+                addSubItemBtn.setVisibility(View.INVISIBLE);
+
+            }else {
+                config.setClosed(false);
+                addSubItemBtn.setVisibility(View.VISIBLE);
+            }
+
+            initRV();
 
             return rootView;
         }
@@ -146,7 +152,6 @@ public class ViewPagerAdapter extends FragmentStatePagerAdapter {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                             dialog.cancel();
-
                         }
                     });
             AlertDialog alert = builder.create();
@@ -154,7 +159,23 @@ public class ViewPagerAdapter extends FragmentStatePagerAdapter {
         }
 
 
+        @Override
+        public void onResume() {
+            super.onResume();
+            initRV();
+            adapter.updateSet(dbSubTasksHelper.getAllSubTasks(selectedID));
+        }
+
+        public void initRV(){
+            adapter = new RecyclerViewSubItemAdapter(dbSubTasksHelper.getAllSubTasks(selectedID), rootView.getContext(), config.isClosed());
+            rv.setHasFixedSize(true);
+            rv.setAdapter(adapter);
+            LinearLayoutManager llm = new LinearLayoutManager(rootView.getContext());
+            rv.setLayoutManager(llm);
+        }
+
     }
+
 
 
 }

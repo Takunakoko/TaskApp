@@ -19,23 +19,23 @@ import java.util.List;
 
 
 //класс адаптера отображения recyclerView
-public class RecyclerViewSubItemAdapter extends RecyclerView.Adapter<RecyclerViewSubItemAdapter.ViewHolder> {
+public class RecyclerViewSubItemOnCreateAdapter extends RecyclerView.Adapter<RecyclerViewSubItemOnCreateAdapter.ViewHolder> {
 
+    private Configurator config = Configurator.getInstance();
     private List<SubTask> subItemsAdapter;
     private Context context;
     private DBSubTasksHelper dbSubTasksHelper;
     private SubTask subTask;
-    private boolean isClosed;
 
-    public RecyclerViewSubItemAdapter(List<SubTask> subItems, Context context, boolean isClosed) {
+    public RecyclerViewSubItemOnCreateAdapter(List<SubTask> subItems, Context context) {
         this.subItemsAdapter = subItems;
         this.context = context;
-        this.isClosed = isClosed;
     }
 
     public void updateSet(List<SubTask> subTasks){
         this.subItemsAdapter.clear();
         this.subItemsAdapter = subTasks;
+        notifyDataSetChanged();
     }
 
     @Override
@@ -50,20 +50,8 @@ public class RecyclerViewSubItemAdapter extends RecyclerView.Adapter<RecyclerVie
         dbSubTasksHelper = new DBSubTasksHelper(context);
         //установка отображения элементов на странице
         holder.description.setText(subTask.getDescription());
-
-        if(isClosed){
-            for (SubTask subTask: subItemsAdapter){
-                dbSubTasksHelper.updateState(subTask.getId(), subTask.getTaskID(), subTask.getNameID());
-            }
-        }
-
-        if(subTask.getState().equals("В работе")){
-            holder.relativeLayout.setBackgroundColor(Color.parseColor("#c1f0c1"));
-        } else {
-            holder.relativeLayout.setBackgroundColor(Color.parseColor("#7EA3FF"));
-            holder.stateCheck.setEnabled(false);
-            holder.stateCheck.setChecked(true);
-        }
+        holder.relativeLayout.setBackgroundColor(Color.parseColor("#c1f0c1"));
+        holder.stateCheck.setEnabled(false);
 
     }
     @Override
@@ -73,7 +61,7 @@ public class RecyclerViewSubItemAdapter extends RecyclerView.Adapter<RecyclerVie
 
 
 
-    public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+    public class ViewHolder extends RecyclerView.ViewHolder{
 
         private TextView description;
         private CheckBox stateCheck;
@@ -86,18 +74,11 @@ public class RecyclerViewSubItemAdapter extends RecyclerView.Adapter<RecyclerVie
             stateCheck = (CheckBox) itemView.findViewById(R.id.checkBox);
             relativeLayout = (RelativeLayout) itemView.findViewById(R.id.subTaskItem);
 
-            stateCheck.setOnClickListener(this);
+
 
         }
 
-        @Override
-        public void onClick(View v) {
-            SubTask si = subItemsAdapter.get(getAdapterPosition());
-            relativeLayout.setBackgroundColor(Color.parseColor("#7EA3FF"));
-            stateCheck.setEnabled(false);
 
-            dbSubTasksHelper.updateState(si.getId(), si.getTaskID(), si.getNameID());
-        }
     }
 
 

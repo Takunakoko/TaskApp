@@ -12,6 +12,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import com.example.takunaka.taskapp.Configurator;
 import com.example.takunaka.taskapp.R;
@@ -29,6 +30,7 @@ public class ShowTaskFragment extends Fragment implements ViewPager.OnPageChange
     private Configurator configurator = Configurator.getInstance();
     private DBTasksHelper dbTasksHelper;
     private View rootView;
+
     public ShowTaskFragment() {
     }
 
@@ -57,8 +59,8 @@ public class ShowTaskFragment extends Fragment implements ViewPager.OnPageChange
     @Override
     public void onResume() {
         super.onResume();
+        initPW();
         mViewPagerAdapter.notifyDataSetChanged();
-
     }
 
     @Override
@@ -68,6 +70,7 @@ public class ShowTaskFragment extends Fragment implements ViewPager.OnPageChange
 
     @Override
     public void onPageSelected(int position) {
+        TaskContainer.setSelectedTask(dbTasksHelper.getAllTasks().get(position));
     }
 
     @Override
@@ -78,11 +81,11 @@ public class ShowTaskFragment extends Fragment implements ViewPager.OnPageChange
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater menuInflater) {
         super.onCreateOptionsMenu(menu, menuInflater);
-        menu.findItem(R.id.action_edit).setVisible(true);
         menu.findItem(R.id.account_action).setVisible(false);
         menu.findItem(R.id.action_save).setVisible(false);
         menu.findItem(R.id.addTask).setVisible(false);
-
+        menu.findItem(R.id.action_edit).setVisible(true);
+        menu.findItem(R.id.action_save_create).setVisible(false);
     }
 
     @Override
@@ -93,8 +96,8 @@ public class ShowTaskFragment extends Fragment implements ViewPager.OnPageChange
         if (id == R.id.action_edit) {
             FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
             uFragment = new UpdateFragment();
-            fragmentTransaction.replace(R.id.container, uFragment, "Show");
-            fragmentTransaction.addToBackStack(null);
+            fragmentTransaction.replace(R.id.container, uFragment);
+            fragmentTransaction.addToBackStack("Show");
             fragmentTransaction.commit();
         }
         return super.onOptionsItemSelected(item);
@@ -108,5 +111,6 @@ public class ShowTaskFragment extends Fragment implements ViewPager.OnPageChange
         mViewPager.setCurrentItem(configurator.getAdapterPosition());
         TaskContainer.setSelectedTask(dbTasksHelper.getAllTasks().get(configurator.getAdapterPosition()));
     }
+
 
 }

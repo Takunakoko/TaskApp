@@ -26,7 +26,7 @@ public class Configurator {
 
     private int adapterPosition;
 
-
+    private boolean isClosed = false;
 
     public int getAdapterPosition() {
         return adapterPosition;
@@ -36,5 +36,11 @@ public class Configurator {
         this.adapterPosition = adapterPosition;
     }
 
+    public boolean isClosed() {
+        return isClosed;
+    }
 
+    public void setClosed(boolean closed) {
+        isClosed = closed;
+    }
 }
