@@ -5,7 +5,8 @@
     tools:context="com.example.takunaka.taskapp.fragments.MainFragment">
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:background="@color/colorPrimaryDark">
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="30dp"
@@ -15,12 +16,13 @@
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:text="Показать закрытые "
-                android:gravity="center_vertical"/>
+                android:gravity="center_vertical"
+                android:textColor="@color/colorAccent"/>
             <Switch
                 android:id="@+id/switcherClosed"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
-                android:checked="false"/>
+                android:checked="false" />
         </LinearLayout>
         <android.support.v7.widget.RecyclerView
             android:id="@+id/recyclerView"

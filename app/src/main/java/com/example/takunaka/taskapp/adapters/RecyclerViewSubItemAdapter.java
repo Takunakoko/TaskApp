@@ -3,6 +3,7 @@ package com.example.takunaka.taskapp.adapters;
 import android.content.Context;
 import android.graphics.Color;
 import android.support.v7.widget.RecyclerView;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -59,9 +60,11 @@ public class RecyclerViewSubItemAdapter extends RecyclerView.Adapter<RecyclerVie
         }
 
         if(subTask.getState().equals("В работе")){
-            holder.relativeLayout.setBackgroundColor(Color.parseColor("#c1f0c1"));
+            holder.relativeLayout.setBackgroundColor(Color.parseColor("#424242"));
         } else {
-            holder.relativeLayout.setBackgroundColor(Color.parseColor("#7EA3FF"));
+            holder.relativeLayout.setBackgroundColor(Color.parseColor("#282828"));
+            holder.description.setTextColor(Color.parseColor("#817BB4"));
+            holder.description.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14);
             holder.stateCheck.setEnabled(false);
             holder.stateCheck.setChecked(true);
         }
@@ -94,7 +97,9 @@ public class RecyclerViewSubItemAdapter extends RecyclerView.Adapter<RecyclerVie
         @Override
         public void onClick(View v) {
             SubTask si = subItemsAdapter.get(getAdapterPosition());
-            relativeLayout.setBackgroundColor(Color.parseColor("#7EA3FF"));
+            relativeLayout.setBackgroundColor(Color.parseColor("#282828"));
+            description.setTextColor(Color.parseColor("#817BB4"));
+            description.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14);
             stateCheck.setEnabled(false);
 
             dbSubTasksHelper.updateState(si.getId(), si.getTaskID(), si.getNameID());

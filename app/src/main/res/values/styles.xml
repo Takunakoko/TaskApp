@@ -17,4 +17,39 @@
 
     <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
 
+    <style name="MyCheckBox" parent="Theme.AppCompat.NoActionBar">
+        <item name="colorControlNormal">@color/colorAccent</item>
+        <item name="colorControlActivated">@color/chckd</item>
+    </style>
+    <style name="mySpinner" parent="Widget.AppCompat.Spinner.Underlined">
+        <item name="android:popupBackground">@color/colorPrimary</item>
+        <item name="android:textColor">@color/colorAccent</item>
+        <item name="android:color">@color/colorAccent</item>
+        <item name="android:gravity">center</item>
+    </style>
+
+    <style name="mySpinnerUpdate" parent="Theme.AppCompat.Dialog">
+        <item name="android:popupBackground">@color/colorPrimary</item>
+
+        <item name="android:gravity">center|center_horizontal</item>
+    </style>
+
+
+    <style name="DialogTheme" parent="Theme.AppCompat.Light">
+        <item name="colorPrimaryDark">@color/whiteText</item>
+    </style>
+
+
+
+    <style name="MyCustomTheme" parent="@android:style/Widget.Holo.TextView">
+
+    </style>
+
+    <style name="SpinnerItem" parent="@android:style/Widget.Holo.TextView.SpinnerItem">
+        <item name="android:textColor">#FFFFFF</item>
+    </style>
+
+
+
+
 </resources>

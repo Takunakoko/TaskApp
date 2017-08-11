@@ -3,20 +3,29 @@
     android:id="@+id/linearLout"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:background="@color/colorPrimaryDark">
 
     <android.support.v7.widget.CardView
         android:id="@+id/cardView"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:background="@color/colorPrimaryDark">
 
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingBottom="8dp"
+            android:background="@color/colorPrimaryDark">
         <RelativeLayout
             android:id="@+id/subTaskItem"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="10dp"
             android:orientation="horizontal"
-            android:padding="15dp">
+            android:padding="8dp"
+            android:background="@color/colorPrimaryDark">
+
+
 
             <TextView
                 android:id="@+id/subItemDesc"
@@ -26,7 +35,8 @@
                 android:layout_alignParentStart="true"
                 android:layout_alignParentTop="true"
                 android:text="Название"
-                android:textAppearance="@style/TextAppearance.AppCompat.Light.SearchResult.Title" />
+                android:textColor="@color/colorAccent"
+                android:textSize="18sp"/>
 
             <CheckBox
                 android:id="@+id/checkBox"
@@ -35,8 +45,10 @@
                 android:layout_alignBottom="@+id/subItemDesc"
                 android:layout_alignParentEnd="true"
                 android:layout_alignParentRight="true"
-                android:layout_alignParentTop="true" />
+                android:layout_alignParentTop="true"
+                android:theme="@style/MyCheckBox"/>
 
+            </RelativeLayout>
         </RelativeLayout>
 
 

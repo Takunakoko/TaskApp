@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical" android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="@color/colorPrimaryDark">
 
     <TextView
         android:id="@+id/textView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Название"
-        android:textAppearance="@style/TextAppearance.AppCompat.Light.SearchResult.Title"
         android:paddingTop="10dp"
         android:paddingBottom="9dp"
         android:layout_alignParentTop="true"
@@ -16,7 +16,9 @@
         android:layout_alignParentStart="true"
         android:layout_marginLeft="15dp"
         android:layout_marginStart="15dp"
-        android:layout_marginTop="16dp" />
+        android:layout_marginTop="16dp"
+        android:textSize="16sp"
+        android:textColor="@color/colorTextSecond"/>
 
     <EditText
         android:id="@+id/NameUpdateField"
@@ -33,48 +35,51 @@
         android:layout_marginRight="16dp"
         android:layout_marginEnd="16dp"
         android:layout_toRightOf="@+id/textView"
-        android:textAppearance="@style/TextAppearance.AppCompat.Light.SearchResult.Subtitle"
-        android:textSize="20sp"/>
+        android:textSize="16sp"
+        android:textColor="@color/colorTextSecond" />
 
     <TextView
         android:id="@+id/textView7"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Дата"
-        android:textAppearance="@style/TextAppearance.AppCompat.Light.SearchResult.Title"
+        android:textSize="16sp"
         android:paddingTop="10dp"
         android:paddingBottom="10dp"
         android:layout_marginTop="12dp"
         android:layout_below="@+id/NameUpdateField"
         android:layout_alignLeft="@+id/textView"
-        android:layout_alignStart="@+id/textView" />
+        android:layout_alignStart="@+id/textView"
+        android:textColor="@color/colorTextSecond"/>
 
     <TextView
         android:id="@+id/DateUpdateField"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textAppearance="@style/TextAppearance.AppCompat.Light.SearchResult.Subtitle"
-        android:textSize="20sp"
+        android:textSize="16sp"
         android:gravity="center"
         android:layout_alignLeft="@+id/NameUpdateField"
         android:layout_alignStart="@+id/NameUpdateField"
         android:layout_alignBottom="@+id/textView7"
         android:layout_alignTop="@+id/textView7"
         android:layout_alignRight="@+id/NameUpdateField"
-        android:layout_alignEnd="@+id/NameUpdateField" />
+        android:layout_alignEnd="@+id/NameUpdateField"
+        android:textColor="@color/colorTextSecond"/>
 
     <TextView
         android:id="@+id/textView5"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Статус"
+        android:textSize="16sp"
         android:paddingTop="10dp"
         android:paddingBottom="10dp"
-        android:textAppearance="@style/TextAppearance.AppCompat.Light.SearchResult.Title"
+
         android:layout_below="@+id/textView7"
         android:layout_alignLeft="@+id/textView7"
         android:layout_alignStart="@+id/textView7"
-        android:layout_marginTop="15dp" />
+        android:layout_marginTop="15dp"
+        android:textColor="@color/colorTextSecond"/>
 
     <Spinner
         android:id="@+id/StateUpdateField"
@@ -82,14 +87,16 @@
         android:layout_height="wrap_content"
         android:entries="@array/States"
         android:gravity="center"
-        android:paddingTop="10dp"
+        android:paddingTop="6dp"
         android:paddingBottom="10dp"
-        android:textSize="20sp"
+        android:textSize="16sp"
+        style="@style/MyCustomTheme"
         android:layout_alignTop="@+id/textView5"
         android:layout_alignLeft="@+id/DateUpdateField"
         android:layout_alignStart="@+id/DateUpdateField"
         android:layout_alignRight="@+id/DateUpdateField"
-        android:layout_alignEnd="@+id/DateUpdateField"/>
+        android:layout_alignEnd="@+id/DateUpdateField"
+        android:textColor="@color/colorTextSecond"/>
 
 
 

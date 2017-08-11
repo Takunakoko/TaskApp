@@ -50,7 +50,7 @@ public class RecyclerViewSubItemOnCreateAdapter extends RecyclerView.Adapter<Rec
         dbSubTasksHelper = new DBSubTasksHelper(context);
         //установка отображения элементов на странице
         holder.description.setText(subTask.getDescription());
-        holder.relativeLayout.setBackgroundColor(Color.parseColor("#c1f0c1"));
+        holder.relativeLayout.setBackgroundColor(Color.parseColor("#424242"));
         holder.stateCheck.setEnabled(false);
 
     }

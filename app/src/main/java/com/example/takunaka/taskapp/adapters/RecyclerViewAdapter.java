@@ -1,12 +1,14 @@
 package com.example.takunaka.taskapp.adapters;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -80,6 +82,13 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
         if(viewTypeSelected == 1){
             holder.headerDate.setText(li.getDate());
         }
+        if(li.getState().equals("Выполняется")){
+            holder.imageView.setBackgroundResource(R.drawable.ic_play_circle_filled_black_24dp);
+            holder.state.setTextColor(Color.parseColor("#97B47B"));
+        }else {
+            holder.imageView.setBackgroundResource(R.drawable.ic_check_circle_black_24dp);
+            holder.state.setTextColor(Color.parseColor("#CB809B"));
+        }
 
 
     }
@@ -95,6 +104,7 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
         private TextView state;
         private TextView headerDate;
         private RelativeLayout rl;
+        private ImageView imageView;
 
         public ViewHolder(View itemView) {
             super(itemView);
@@ -103,6 +113,7 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
             state = (TextView) itemView.findViewById(R.id.State);
             headerDate = (TextView) itemView.findViewById(R.id.header_title);
             rl = (RelativeLayout) itemView.findViewById(R.id.task);
+            imageView = (ImageView) itemView.findViewById(R.id.imageViewStatus);
             rl.setOnClickListener(this);
         }
 

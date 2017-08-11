@@ -12,6 +12,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.view.ContextThemeWrapper;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -94,7 +95,7 @@ public class CreateTaskFragment extends Fragment implements View.OnClickListener
             @Override
             public void onClick(View v) {
 
-                DatePickerDialog dialog = new DatePickerDialog(getContext(), android.R.style.Theme_Holo_Light,
+                DatePickerDialog dialog = new DatePickerDialog(getContext(), R.style.Theme_AppCompat_Dialog,
                         mDateSetListner, year_x, month_x, day_x);
                 dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
                 dialog.show();
@@ -216,7 +217,7 @@ public class CreateTaskFragment extends Fragment implements View.OnClickListener
 
     @Override
     public void onClick(View v){
-        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+        AlertDialog.Builder builder = new AlertDialog.Builder(new android.view.ContextThemeWrapper(getContext(), R.style.Theme_AppCompat_Dialog));
         final View dialogview = View.inflate(getContext(), R.layout.dialog_add_description, null);
         builder.setTitle("Добавить дело")
                 .setView(dialogview)

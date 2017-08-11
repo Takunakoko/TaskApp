@@ -63,9 +63,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        getSupportActionBar().setTitle(null);
 
-        toolbar.setTitle(null);
 
         //Создание DB
         dbNamesHelper = new DBNamesHelper(this);
@@ -74,15 +72,15 @@ public class MainActivity extends AppCompatActivity {
             showUsersSelectDialog();
         }else {
             loadUser();
+            getSupportActionBar().setTitle(UserContainer.getFullName());
+            MenuItem menuItem = (MenuItem) toolbar.findViewById(R.id.account_action);
+            //menuItem.setTitle(UserContainer.getFullName());
             mainFragment = new MainFragment();
             getSupportFragmentManager().beginTransaction()
                     .add(mainFragment, "Main")
                     .replace(R.id.container, mainFragment)
                     .commit();
         }
-
-
-
     }
 
     @Override
@@ -122,7 +120,6 @@ public class MainActivity extends AppCompatActivity {
             createTaskFragment = new CreateTaskFragment();
             MainFragment mainFragment = new MainFragment();
             getSupportFragmentManager().beginTransaction()
-                    //.add(mainFragment, "Main")
                     .replace(R.id.container, createTaskFragment)
                     .addToBackStack(null)
                     .commit();
@@ -150,7 +147,7 @@ public class MainActivity extends AppCompatActivity {
                             UserContainer.setSelectedID(((Users)spinnerUsers.getSelectedItem()).getUserID());
                             UserContainer.setSelectedName(((Users)spinnerUsers.getSelectedItem()).getUserName());
                             UserContainer.setSelectedSurName(((Users)spinnerUsers.getSelectedItem()).getUserSurName());
-                            getSupportActionBar().setSubtitle(UserContainer.getFullName());
+                            getSupportActionBar().setTitle(UserContainer.getFullName());
                             mainFragment = new MainFragment();
                             getSupportFragmentManager().beginTransaction()
                                     .add(mainFragment, "Main")

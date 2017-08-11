@@ -10,12 +10,16 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.Spinner;
@@ -45,6 +49,8 @@ public class UpdateFragment extends Fragment {
     private int year_x, month_x, day_x;
     private DatePickerDialog.OnDateSetListener mDateSetListner;
     private Configurator config = Configurator.getInstance();
+    MenuItem saveItem;
+    int currentPosition;
 
     public UpdateFragment() {
     }
@@ -69,10 +75,24 @@ public class UpdateFragment extends Fragment {
         name.setText(TaskContainer.getSelectedTask().getDesription());
         date.setText(TaskContainer.getSelectedTask().getDate());
         selectedID = String.valueOf(TaskContainer.getSelectedTask().getTaskID());
+
+
+
+
+        String[] states = { "Выполняется", "Закрыта"};
+
+        ArrayAdapter<String> spinnerItemsAdapter = new ArrayAdapter<String>(getContext(), R.layout.spinner_item, states);
+        spinnerItemsAdapter.setDropDownViewResource(R.layout.spinner_item);
+        state.setAdapter(spinnerItemsAdapter);
+
+
         if(TaskContainer.getSelectedTask().getState().equals("Выполняется")){
             state.setSelection(0);
-        }else state.setSelection(1);
-
+            currentPosition = 0;
+        }else {
+            state.setSelection(1);
+            currentPosition = 1;
+        }
 
         initCal();
 
@@ -80,7 +100,7 @@ public class UpdateFragment extends Fragment {
             @Override
             public void onClick(View v) {
 
-                DatePickerDialog dialog = new DatePickerDialog(getContext(), android.R.style.Theme_Holo_Light,
+                DatePickerDialog dialog = new DatePickerDialog(getContext(), R.style.Theme_AppCompat_Dialog,
                         mDateSetListner, year_x, month_x, day_x);
                 dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
                 dialog.show();
@@ -100,6 +120,68 @@ public class UpdateFragment extends Fragment {
         ((AppCompatActivity) getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         ((AppCompatActivity) getActivity()).getSupportActionBar().setDisplayShowHomeEnabled(true);
 
+
+        name.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                if(TaskContainer.getSelectedTask().getState().equals("В работе")){
+                    saveItem.setVisible(false);
+                }else if (TaskContainer.getSelectedTask().getState().equals("Закрыта")){
+                    saveItem.setVisible(false);
+                }
+                saveItem.setVisible(true);
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
+            }
+        });
+        date.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                saveItem.setVisible(true);
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
+            }
+        });
+
+        state.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                if (currentPosition == 0) {
+                    if (position == 1) {
+                        saveItem.setVisible(true);
+                    }
+                }
+                if (currentPosition == 1) {
+                    if (position == 0) {
+                        saveItem.setVisible(true);
+                    }
+
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
+
+
         return rootView;
 
 
@@ -108,9 +190,9 @@ public class UpdateFragment extends Fragment {
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater menuInflater) {
         super.onCreateOptionsMenu(menu, menuInflater);
+        saveItem = menu.findItem(R.id.action_save).setVisible(false);
         menu.findItem(R.id.action_edit).setVisible(false);
         menu.findItem(R.id.account_action).setVisible(false);
-        menu.findItem(R.id.action_save).setVisible(true);
         menu.findItem(R.id.addTask).setVisible(false);
         menu.findItem(R.id.action_save_create).setVisible(false);
 

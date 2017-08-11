@@ -135,7 +135,7 @@ public class ViewPagerAdapter extends FragmentStatePagerAdapter {
             final SQLiteDatabase db = dbSubTasksHelper.getWritableDatabase();
             final ContentValues cv = new ContentValues();
 
-            AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+            AlertDialog.Builder builder = new AlertDialog.Builder(new android.view.ContextThemeWrapper(getContext(), R.style.Theme_AppCompat_Dialog));
             final View dialogview = View.inflate(getContext(), R.layout.dialog_add_description, null);
             builder.setTitle("Добавить дело")
                     .setView(dialogview)
@@ -148,8 +148,6 @@ public class ViewPagerAdapter extends FragmentStatePagerAdapter {
                             cv.put(DBSubTasksHelper.KEY_NAMEID, UserContainer.getSelectedID());
                             cv.put(DBSubTasksHelper.KEY_TASKID, selectedID);
                             db.insert(DBSubTasksHelper.TABLE_SUBTASK, null, cv);
-                            //СДЕЛАЙ СОХРАНЕНИЕ ЭЛЕМЕНТОВ ЧЕРЕЗ ПРОСТУЮ ПОВТОРНУЮ ИНИЦИАЛИЗАЦИЮ РЕСАЙКЛВЬЮ!
-                            //ХОТЯ НЕ, ВСЕ НОРМ :D
                             initRV();
                             adapter.notifyDataSetChanged();
                         }
