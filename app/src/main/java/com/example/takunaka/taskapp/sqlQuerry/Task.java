@@ -10,6 +10,7 @@ public class Task {
     private String desription;
     private String date;
     private String state;
+    private int type;
 
     public Task(int taskID, int nameID, String desription, String date, String state) {
         this.taskID = taskID;
@@ -17,6 +18,9 @@ public class Task {
         this.desription = desription;
         this.date = date;
         this.state = state;
+    }
+    public Task(){
+
     }
 
     public int getTaskID() {
@@ -57,5 +61,13 @@ public class Task {
 
     public void setState(String state) {
         this.state = state;
+    }
+
+    public int getType() {
+        return type;
+    }
+
+    public void setType(int type) {
+        this.type = type;
     }
 }

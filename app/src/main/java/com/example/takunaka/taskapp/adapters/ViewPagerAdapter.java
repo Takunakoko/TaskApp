@@ -8,6 +8,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v7.app.AlertDialog;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -38,6 +39,8 @@ public class ViewPagerAdapter extends FragmentStatePagerAdapter {
 
     private static List<Task> listTaskAdapt;
     private FragmentManager fm;
+    private Configurator configurator = Configurator.getInstance();
+    private int id;
 
     public ViewPagerAdapter(List<Task> listItems, FragmentManager fm) {
         super(fm);
@@ -47,6 +50,7 @@ public class ViewPagerAdapter extends FragmentStatePagerAdapter {
 
     @Override
     public Fragment getItem(int position) {
+
         Task li = listTaskAdapt.get(position);
         Fragment fragment = new ViewPagerFragment();
         Bundle args = new Bundle();
@@ -102,6 +106,7 @@ public class ViewPagerAdapter extends FragmentStatePagerAdapter {
                 }
             });
 
+
             name.setText(args.getString("Name"));
             date.setText(args.getString("Date"));
             state.setText(args.getString("State"));
@@ -120,7 +125,6 @@ public class ViewPagerAdapter extends FragmentStatePagerAdapter {
             }
 
             initRV();
-
             return rootView;
         }
 
@@ -144,7 +148,9 @@ public class ViewPagerAdapter extends FragmentStatePagerAdapter {
                             cv.put(DBSubTasksHelper.KEY_NAMEID, UserContainer.getSelectedID());
                             cv.put(DBSubTasksHelper.KEY_TASKID, selectedID);
                             db.insert(DBSubTasksHelper.TABLE_SUBTASK, null, cv);
-                            adapter.updateSet(dbSubTasksHelper.getAllSubTasks(selectedID));
+                            //СДЕЛАЙ СОХРАНЕНИЕ ЭЛЕМЕНТОВ ЧЕРЕЗ ПРОСТУЮ ПОВТОРНУЮ ИНИЦИАЛИЗАЦИЮ РЕСАЙКЛВЬЮ!
+                            //ХОТЯ НЕ, ВСЕ НОРМ :D
+                            initRV();
                             adapter.notifyDataSetChanged();
                         }
                     })
@@ -164,6 +170,7 @@ public class ViewPagerAdapter extends FragmentStatePagerAdapter {
             super.onResume();
             initRV();
             adapter.updateSet(dbSubTasksHelper.getAllSubTasks(selectedID));
+            adapter.notifyDataSetChanged();
         }
 
         public void initRV(){
@@ -175,6 +182,8 @@ public class ViewPagerAdapter extends FragmentStatePagerAdapter {
         }
 
     }
+
+
 
 
 

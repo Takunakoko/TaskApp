@@ -3,6 +3,7 @@ package com.example.takunaka.taskapp;
 import android.app.Dialog;
 import android.content.ContentValues;
 import android.content.DialogInterface;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
@@ -22,6 +23,7 @@ import android.widget.Toast;
 import com.example.takunaka.taskapp.fragments.CreateTaskFragment;
 import com.example.takunaka.taskapp.fragments.MainFragment;
 import com.example.takunaka.taskapp.sql.DBNamesHelper;
+import com.example.takunaka.taskapp.sqlQuerry.TaskContainer;
 import com.example.takunaka.taskapp.sqlQuerry.UserContainer;
 import com.example.takunaka.taskapp.sqlQuerry.Users;
 
@@ -48,7 +50,11 @@ public class MainActivity extends AppCompatActivity {
 
     private EditText selName;
     private EditText selSurname;
+    private SharedPreferences sPref;
 
+    private final String SAVED_ID = "saved_id";
+    private final String SAVED_NAME = "saved_name";
+    private final String SAVED_SURNAME = "saved_surname";
 
 
     @Override
@@ -63,7 +69,17 @@ public class MainActivity extends AppCompatActivity {
 
         //Создание DB
         dbNamesHelper = new DBNamesHelper(this);
-        showUsersSelectDialog();
+
+        if(UserContainer.getSelectedID() == 0){
+            showUsersSelectDialog();
+        }else {
+            loadUser();
+            mainFragment = new MainFragment();
+            getSupportFragmentManager().beginTransaction()
+                    .add(mainFragment, "Main")
+                    .replace(R.id.container, mainFragment)
+                    .commit();
+        }
 
 
 
@@ -72,11 +88,12 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        FragmentTransaction ftrans = getSupportFragmentManager().beginTransaction();
-        mainFragment = new MainFragment();
-        ftrans.replace(R.id.container, mainFragment);
-        ftrans.commit();
+    }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        saveUser();
     }
 
     @Override
@@ -102,10 +119,13 @@ public class MainActivity extends AppCompatActivity {
            showUsersSelectDialog();
         }
         if (id == R.id.addTask){
-            FragmentTransaction ftrans = getSupportFragmentManager().beginTransaction();
             createTaskFragment = new CreateTaskFragment();
-            ftrans.replace(R.id.container, createTaskFragment);
-            ftrans.commit();
+            MainFragment mainFragment = new MainFragment();
+            getSupportFragmentManager().beginTransaction()
+                    //.add(mainFragment, "Main")
+                    .replace(R.id.container, createTaskFragment)
+                    .addToBackStack(null)
+                    .commit();
         }
 
         return super.onOptionsItemSelected(item);
@@ -131,10 +151,11 @@ public class MainActivity extends AppCompatActivity {
                             UserContainer.setSelectedName(((Users)spinnerUsers.getSelectedItem()).getUserName());
                             UserContainer.setSelectedSurName(((Users)spinnerUsers.getSelectedItem()).getUserSurName());
                             getSupportActionBar().setSubtitle(UserContainer.getFullName());
-                            FragmentTransaction ftrans = getSupportFragmentManager().beginTransaction();
                             mainFragment = new MainFragment();
-                            ftrans.replace(R.id.container, mainFragment);
-                            ftrans.commit();
+                            getSupportFragmentManager().beginTransaction()
+                                    .add(mainFragment, "Main")
+                                    .replace(R.id.container, mainFragment)
+                                    .commit();
                         }
                     }
                 })
@@ -268,6 +289,24 @@ public class MainActivity extends AppCompatActivity {
         alert.setCanceledOnTouchOutside(false);
         alert.show();
 
+
+    }
+
+    public void saveUser(){
+        sPref = getPreferences(MODE_PRIVATE);
+        SharedPreferences.Editor ed = sPref.edit();
+        ed.putString(SAVED_ID, String.valueOf(UserContainer.getSelectedID()));
+        ed.putString(SAVED_NAME, UserContainer.getSelectedName());
+        ed.putString(SAVED_SURNAME, UserContainer.getSelectedSurName());
+        ed.commit();
+    }
+
+    public void loadUser(){
+        sPref = getPreferences(MODE_PRIVATE);
+        String savedID = sPref.getString(SAVED_ID, "");
+        UserContainer.setSelectedID(Integer.valueOf(savedID));
+        UserContainer.setSelectedName(sPref.getString(SAVED_NAME, ""));
+        UserContainer.setSelectedSurName(sPref.getString(SAVED_SURNAME, ""));
 
     }
 

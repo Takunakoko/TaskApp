@@ -76,6 +76,7 @@ public class DBSubTasksHelper extends SQLiteOpenHelper {
 
 
 
+
     public void updateState(int id, int taskID, int nameID){
         ContentValues cv = new ContentValues();
         cv.put(this.KEY_STATE, "Закрыта");

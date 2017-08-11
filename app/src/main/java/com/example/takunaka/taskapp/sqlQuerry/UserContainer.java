@@ -7,7 +7,7 @@ package com.example.takunaka.taskapp.sqlQuerry;
  */
 
 public class UserContainer {
-    private static int selectedID;
+    private static int selectedID = 0;
     private static String selectedName;
     private static String selectedSurName;
 

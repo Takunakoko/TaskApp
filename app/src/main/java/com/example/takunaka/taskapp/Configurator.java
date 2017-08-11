@@ -28,6 +28,8 @@ public class Configurator {
 
     private boolean isClosed = false;
 
+    private boolean onlyOpened = true;
+
     public int getAdapterPosition() {
         return adapterPosition;
     }
@@ -43,4 +45,13 @@ public class Configurator {
     public void setClosed(boolean closed) {
         isClosed = closed;
     }
+
+    public boolean isOnlyOpened() {
+        return onlyOpened;
+    }
+
+    public void setOnlyOpened(boolean onlyOpened) {
+        this.onlyOpened = onlyOpened;
+    }
+
 }

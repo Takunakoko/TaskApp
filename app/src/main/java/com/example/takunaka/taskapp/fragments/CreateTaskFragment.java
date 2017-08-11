@@ -11,6 +11,7 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AlertDialog;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -120,6 +121,10 @@ public class CreateTaskFragment extends Fragment implements View.OnClickListener
         rv.setLayoutManager(llm);
 
         setHasOptionsMenu(true);
+
+        ((AppCompatActivity) getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        ((AppCompatActivity) getActivity()).getSupportActionBar().setDisplayShowHomeEnabled(true);
+
         return rootView;
     }
 
@@ -170,14 +175,18 @@ public class CreateTaskFragment extends Fragment implements View.OnClickListener
                 dbTasks.close();
                 dbTasksHelper.close();
                 Toast.makeText(getContext(), "Задача создана", Toast.LENGTH_SHORT).show();
-
-                FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
                 mainFragment = new MainFragment();
-                fragmentTransaction.replace(R.id.container, mainFragment, "Create");
-                fragmentTransaction.addToBackStack("Main");
-                fragmentTransaction.commit();
+                getFragmentManager().beginTransaction()
+                .replace(R.id.container, mainFragment)
+                .commit();
             }
 
+        }
+        if (id == android.R.id.home){
+            mainFragment = new MainFragment();
+            getFragmentManager().beginTransaction()
+                    .replace(R.id.container, mainFragment)
+                    .commit();
         }
 
         return super.onOptionsItemSelected(item);

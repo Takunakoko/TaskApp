@@ -9,6 +9,7 @@ import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -96,6 +97,9 @@ public class UpdateFragment extends Fragment {
             }
         };
 
+        ((AppCompatActivity) getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        ((AppCompatActivity) getActivity()).getSupportActionBar().setDisplayShowHomeEnabled(true);
+
         return rootView;
 
 
@@ -141,13 +145,18 @@ public class UpdateFragment extends Fragment {
                         dbSubTasksHelper.updateState(s.getId(), s.getTaskID(), s.getNameID());
                     }
                 }
-
-                FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
-                showTaskFragment = new ShowTaskFragment();
-                fragmentTransaction.replace(R.id.container, showTaskFragment, "Show");
-                fragmentTransaction.commit();
+                MainFragment mainFragment = new MainFragment();
+                getFragmentManager().beginTransaction()
+                .replace(R.id.container, mainFragment)
+                .commit();
                 db.close();
             }
+        }
+        if (id == android.R.id.home){
+            showTaskFragment = new ShowTaskFragment();
+            getFragmentManager().beginTransaction()
+            .replace(R.id.container, showTaskFragment)
+            .commit();
         }
 
         return super.onOptionsItemSelected(item);

@@ -7,6 +7,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.example.takunaka.taskapp.Configurator;
@@ -16,6 +17,7 @@ import com.example.takunaka.taskapp.sql.DBTasksHelper;
 import com.example.takunaka.taskapp.sqlQuerry.Task;
 import com.example.takunaka.taskapp.sqlQuerry.TaskContainer;
 
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -24,28 +26,61 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
 
     private Configurator config = Configurator.getInstance();
     private ShowTaskFragment stFragment;
-    private List<Task> listTasks;
+    private ArrayList<Task> listTasks;
     private Context context;
     DBTasksHelper dbTasksHelper;
+    private int viewTypeSelected = 0;
 
 
-    public RecyclerViewAdapter(List<Task> listTasks, Context context) {
+    public RecyclerViewAdapter(ArrayList<Task> listTasks, Context context) {
         this.listTasks = listTasks;
         this.context = context;
     }
 
     @Override
+    public int getItemViewType(int position) {
+        int viewType = 0;
+        if(listTasks.get(position).getType() == 1){
+            viewType = 1;
+            viewTypeSelected = viewType;
+        }else if(listTasks.get(position).getType() == 2){
+            viewType = 2;
+            viewTypeSelected = viewType;
+        }
+        return viewType;
+    }
+
+    @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item, parent, false);
-        return new ViewHolder(v);
+
+        LayoutInflater mInflater = LayoutInflater.from(parent.getContext());
+
+        switch (viewType){
+            case 1:
+                View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item_header, parent, false);
+                return new ViewHolder(v);
+            case 2:
+                View v2 = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item, parent, false);
+                return new ViewHolder(v2);
+            default:
+                View v3 = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item, parent, false);
+                return new ViewHolder(v3);
+        }
+
+
     }
 
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
+
         Task li = listTasks.get(position);
         //установка отображения элементов на странице
         holder.name.setText(li.getDesription());
         holder.state.setText(li.getState());
+        if(viewTypeSelected == 1){
+            holder.headerDate.setText(li.getDate());
+        }
+
 
     }
 
@@ -54,18 +89,21 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
         return listTasks.size();
     }
 
-
     public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
         private TextView name;
         private TextView state;
+        private TextView headerDate;
+        private RelativeLayout rl;
 
         public ViewHolder(View itemView) {
             super(itemView);
             //привязка элементов к xml файлу
             name = (TextView) itemView.findViewById(R.id.Name);
             state = (TextView) itemView.findViewById(R.id.State);
-            itemView.setOnClickListener(this);
+            headerDate = (TextView) itemView.findViewById(R.id.header_title);
+            rl = (RelativeLayout) itemView.findViewById(R.id.task);
+            rl.setOnClickListener(this);
         }
 
 
@@ -82,5 +120,6 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
         }
 
     }
+
 
 }

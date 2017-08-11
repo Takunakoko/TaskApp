@@ -36,6 +36,7 @@ public class RecyclerViewSubItemAdapter extends RecyclerView.Adapter<RecyclerVie
     public void updateSet(List<SubTask> subTasks){
         this.subItemsAdapter.clear();
         this.subItemsAdapter = subTasks;
+        notifyDataSetChanged();
     }
 
     @Override
