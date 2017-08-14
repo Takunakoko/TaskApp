@@ -122,12 +122,12 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
         public void onClick(View v) {
             config.setAdapterPosition(getAdapterPosition());
             TaskContainer.setSelectedTaskID(getAdapterPosition());
-            AppCompatActivity activity = (AppCompatActivity) v.getContext();
-            FragmentTransaction ft = activity.getSupportFragmentManager().beginTransaction();
             stFragment = new ShowTaskFragment();
-            ft.replace(R.id.container, stFragment, "Main");
-            ft.addToBackStack(null);
-            ft.commit();
+            AppCompatActivity activity = (AppCompatActivity) v.getContext();
+            activity.getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.container, stFragment)
+                    .addToBackStack(null)
+                    .commit();
         }
 
     }

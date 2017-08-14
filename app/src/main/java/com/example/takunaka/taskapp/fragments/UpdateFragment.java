@@ -59,6 +59,7 @@ public class UpdateFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setRetainInstance(true);
 
     }
 
@@ -195,6 +196,7 @@ public class UpdateFragment extends Fragment {
         menu.findItem(R.id.account_action).setVisible(false);
         menu.findItem(R.id.addTask).setVisible(false);
         menu.findItem(R.id.action_save_create).setVisible(false);
+        menu.findItem(R.id.search_action).setVisible(false);
 
     }
 

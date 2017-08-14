@@ -40,6 +40,7 @@ public class ShowTaskFragment extends Fragment implements ViewPager.OnPageChange
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setRetainInstance(true);
     }
 
     @Override
@@ -98,6 +99,7 @@ public class ShowTaskFragment extends Fragment implements ViewPager.OnPageChange
         menu.findItem(R.id.addTask).setVisible(false);
         menu.findItem(R.id.action_edit).setVisible(true);
         menu.findItem(R.id.action_save_create).setVisible(false);
+        menu.findItem(R.id.search_action).setVisible(false);
     }
 
     @Override
@@ -123,24 +125,37 @@ public class ShowTaskFragment extends Fragment implements ViewPager.OnPageChange
 
     public void initPW(){
         dbTasksHelper = new DBTasksHelper(rootView.getContext());
-        if(configurator.isOnlyOpened()){
-            mViewPagerAdapter = new ViewPagerAdapter(dbTasksHelper.getOpenedSortedTask(), getFragmentManager());
+        if(configurator.isFilterActive()){
+            mViewPagerAdapter = new ViewPagerAdapter(configurator.getTasks(), getFragmentManager());
             mViewPager.setAdapter(mViewPagerAdapter);
             mViewPager.setCurrentItem(configurator.getAdapterPosition());
             TaskContainer.setSelectedTask(dbTasksHelper.getOpenedSortedTask().get(configurator.getAdapterPosition()));
             mViewPagerAdapter.notifyDataSetChanged();
+        }else {
+            if(configurator.isOnlyOpened()){
+                mViewPagerAdapter = new ViewPagerAdapter(dbTasksHelper.getOpenedSortedTask(), getFragmentManager());
+                mViewPager.setAdapter(mViewPagerAdapter);
+                mViewPager.setCurrentItem(configurator.getAdapterPosition());
+                TaskContainer.setSelectedTask(dbTasksHelper.getOpenedSortedTask().get(configurator.getAdapterPosition()));
+                mViewPagerAdapter.notifyDataSetChanged();
 
+            }
+            else {
+                dbTasksHelper = new DBTasksHelper(rootView.getContext());
+                mViewPagerAdapter = new ViewPagerAdapter(dbTasksHelper.getAllSortedTasks(), getFragmentManager());
+                mViewPager.setAdapter(mViewPagerAdapter);
+                mViewPager.setCurrentItem(configurator.getAdapterPosition());
+                TaskContainer.setSelectedTask(dbTasksHelper.getAllSortedTasks().get(configurator.getAdapterPosition()));
+                mViewPagerAdapter.notifyDataSetChanged();
+            }
         }
-        else {
-            dbTasksHelper = new DBTasksHelper(rootView.getContext());
-            mViewPagerAdapter = new ViewPagerAdapter(dbTasksHelper.getAllSortedTasks(), getFragmentManager());
-            mViewPager.setAdapter(mViewPagerAdapter);
-            mViewPager.setCurrentItem(configurator.getAdapterPosition());
-            TaskContainer.setSelectedTask(dbTasksHelper.getAllSortedTasks().get(configurator.getAdapterPosition()));
-            mViewPagerAdapter.notifyDataSetChanged();
-        }
+
+
 
     }
 
-
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+    }
 }

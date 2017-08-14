@@ -1,12 +1,16 @@
 package com.example.takunaka.taskapp;
 
+import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.content.ContentValues;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.os.PersistableBundle;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -16,8 +20,11 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ArrayAdapter;
+import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.Spinner;
+import android.widget.Switch;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.takunaka.taskapp.fragments.CreateTaskFragment;
@@ -27,6 +34,9 @@ import com.example.takunaka.taskapp.sqlQuerry.TaskContainer;
 import com.example.takunaka.taskapp.sqlQuerry.UserContainer;
 import com.example.takunaka.taskapp.sqlQuerry.Users;
 
+import org.w3c.dom.Text;
+
+import java.util.Calendar;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
@@ -39,8 +49,11 @@ public class MainActivity extends AppCompatActivity {
     private MenuItem edit;
     private MenuItem account;
     private MenuItem addTask;
+    private MenuItem search;
 
     private Spinner spinnerUsers;
+
+    private Configurator config = Configurator.getInstance();
 
     private DBNamesHelper dbNamesHelper;
     private SQLiteDatabase dbNames;
@@ -57,13 +70,13 @@ public class MainActivity extends AppCompatActivity {
     private final String SAVED_SURNAME = "saved_surname";
 
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
 
         //Создание DB
         dbNamesHelper = new DBNamesHelper(this);
@@ -74,13 +87,20 @@ public class MainActivity extends AppCompatActivity {
             loadUser();
             getSupportActionBar().setTitle(UserContainer.getFullName());
             MenuItem menuItem = (MenuItem) toolbar.findViewById(R.id.account_action);
-            //menuItem.setTitle(UserContainer.getFullName());
             mainFragment = new MainFragment();
-            getSupportFragmentManager().beginTransaction()
+            getSupportFragmentManager()
+                    .beginTransaction()
                     .add(mainFragment, "Main")
                     .replace(R.id.container, mainFragment)
+                    //.addToBackStack(null)
                     .commit();
         }
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState, PersistableBundle outPersistentState) {
+        super.onSaveInstanceState(outState, outPersistentState);
+
     }
 
     @Override
@@ -102,11 +122,14 @@ public class MainActivity extends AppCompatActivity {
         account = menu.findItem(R.id.account_action);
         addTask = menu.findItem(R.id.addTask);
         saveOnCreate = menu.findItem(R.id.action_save_create);
+        search = menu.findItem(R.id.search_action);
             save.setVisible(false);
             edit.setVisible(false);
             account.setVisible(true);
             addTask.setVisible(true);
             saveOnCreate.setVisible(false);
+            search.setVisible(true);
+
         return true;
     }
 
@@ -118,16 +141,14 @@ public class MainActivity extends AppCompatActivity {
         }
         if (id == R.id.addTask){
             createTaskFragment = new CreateTaskFragment();
-            MainFragment mainFragment = new MainFragment();
+
             getSupportFragmentManager().beginTransaction()
                     .replace(R.id.container, createTaskFragment)
                     .addToBackStack(null)
                     .commit();
         }
-
         return super.onOptionsItemSelected(item);
     }
-
 
     //диалог выбора юзера
     public void showUsersSelectDialog() {
@@ -289,6 +310,7 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+
     public void saveUser(){
         sPref = getPreferences(MODE_PRIVATE);
         SharedPreferences.Editor ed = sPref.edit();
@@ -306,5 +328,7 @@ public class MainActivity extends AppCompatActivity {
         UserContainer.setSelectedSurName(sPref.getString(SAVED_SURNAME, ""));
 
     }
+
+
 
 }

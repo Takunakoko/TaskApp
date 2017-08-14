@@ -4,6 +4,9 @@ import com.example.takunaka.taskapp.fragments.CreateTaskFragment;
 import com.example.takunaka.taskapp.fragments.MainFragment;
 import com.example.takunaka.taskapp.fragments.ShowTaskFragment;
 import com.example.takunaka.taskapp.fragments.UpdateFragment;
+import com.example.takunaka.taskapp.sqlQuerry.Task;
+
+import java.util.ArrayList;
 
 /**
  * Created by takunaka on 02.08.17.
@@ -30,6 +33,14 @@ public class Configurator {
 
     private boolean onlyOpened = true;
 
+    private boolean FilterActive = false;
+
+    private String filterDateFrom;
+
+    private String filterDateTo;
+
+    private ArrayList<Task> tasks;
+
     public int getAdapterPosition() {
         return adapterPosition;
     }
@@ -54,4 +65,35 @@ public class Configurator {
         this.onlyOpened = onlyOpened;
     }
 
+    public String getFilterDateFrom() {
+        return filterDateFrom;
+    }
+
+    public void setFilterDateFrom(String filterDateFrom) {
+        this.filterDateFrom = filterDateFrom;
+    }
+
+    public String getFilterDateTo() {
+        return filterDateTo;
+    }
+
+    public void setFilterDateTo(String filterDateTo) {
+        this.filterDateTo = filterDateTo;
+    }
+
+    public boolean isFilterActive() {
+        return FilterActive;
+    }
+
+    public void setFilterActive(boolean filterActive) {
+        FilterActive = filterActive;
+    }
+
+    public ArrayList<Task> getTasks() {
+        return tasks;
+    }
+
+    public void setTasks(ArrayList<Task> tasks) {
+        this.tasks = tasks;
+    }
 }

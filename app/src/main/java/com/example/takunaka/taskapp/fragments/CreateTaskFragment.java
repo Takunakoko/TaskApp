@@ -67,14 +67,13 @@ public class CreateTaskFragment extends Fragment implements View.OnClickListener
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         rootView = inflater.inflate(R.layout.fragment_create_task, container, false);
-
+        setRetainInstance(true);
         dbTasksHelper = new DBTasksHelper(getContext());
         dbSubTasksHelper = new DBSubTasksHelper(getContext());
         dbTasks = dbTasksHelper.getWritableDatabase();
@@ -88,8 +87,7 @@ public class CreateTaskFragment extends Fragment implements View.OnClickListener
         addSubTsk.setOnClickListener(this);
 
         initCal();
-
-        date.setText(day_x + "." + month_x + "." + year_x);
+        date.setText(day_x + "." + (month_x + 1) + "." + year_x);
 
         date.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -105,11 +103,10 @@ public class CreateTaskFragment extends Fragment implements View.OnClickListener
         mDateSetListner = new DatePickerDialog.OnDateSetListener() {
             @Override
             public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
-                month = month + 1;
                 year_x = year;
                 month_x = month;
                 day_x = dayOfMonth;
-                dateCalSet = dayOfMonth + "." + month + "." + year;
+                dateCalSet = dayOfMonth + "." + (month + 1) + "." + year;
                 date.setText(dateCalSet);
             }
         };
@@ -140,6 +137,7 @@ public class CreateTaskFragment extends Fragment implements View.OnClickListener
         menu.findItem(R.id.addTask).setVisible(false);
         menu.findItem(R.id.action_save).setVisible(false);
         menu.findItem(R.id.action_save_create).setVisible(true);
+        menu.findItem(R.id.search_action).setVisible(false);
     }
 
     @Override
