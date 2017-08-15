@@ -8,6 +8,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AlertDialog;
@@ -52,6 +53,7 @@ public class CreateTaskFragment extends Fragment implements View.OnClickListener
     private String dateText;
     private String dateCalSet;
     private MainFragment mainFragment;
+    private CreateTaskFragment createTaskFragment;
     private View rootView;
     private int year_x, month_x, day_x;
     private DatePickerDialog.OnDateSetListener mDateSetListner;
@@ -67,19 +69,22 @@ public class CreateTaskFragment extends Fragment implements View.OnClickListener
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setRetainInstance(true);
+
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         rootView = inflater.inflate(R.layout.fragment_create_task, container, false);
-        setRetainInstance(true);
+        createTaskFragment = new CreateTaskFragment();
         dbTasksHelper = new DBTasksHelper(getContext());
         dbSubTasksHelper = new DBSubTasksHelper(getContext());
         dbTasks = dbTasksHelper.getWritableDatabase();
         name = (EditText) rootView.findViewById(R.id.NameCreateField);
         name.requestFocus();
         date = (TextView) rootView.findViewById(R.id.DateCreateField);
+
         addSubTsk = (Button) rootView.findViewById(R.id.addSubShowTaskButtonOnCreate);
         rv = (RecyclerView) rootView.findViewById(R.id.recyclerViewOnCreate);
 
@@ -95,7 +100,7 @@ public class CreateTaskFragment extends Fragment implements View.OnClickListener
 
                 DatePickerDialog dialog = new DatePickerDialog(getContext(), R.style.Theme_AppCompat_Dialog,
                         mDateSetListner, year_x, month_x, day_x);
-                dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+                dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.DKGRAY));
                 dialog.show();
             }
         });
@@ -238,4 +243,36 @@ public class CreateTaskFragment extends Fragment implements View.OnClickListener
 
     }
 
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        outState.putString("Name", name.getText().toString());
+        outState.putString("Date", date.getText().toString());
+        outState.putInt("STSize", subTasks.size());
+        for (int i = 0; i < subTasks.size(); i++){
+            outState.putString("Description " + i, subTasks.get(i).getDescription() );
+        }
+        super.onSaveInstanceState(outState);
+
+    }
+
+    @Override
+    public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
+        if(savedInstanceState != null) {
+            name.setText(savedInstanceState.getString("Name"));
+            date.setText(savedInstanceState.getString("Date"));
+            for (int i = 0; i < savedInstanceState.getInt("STSize"); i++){
+                subTasks.add(new SubTask(UserContainer.getSelectedID(), savedInstanceState.getString("Description " + i), "В работе"));
+            }
+            initSubTasksRV();
+        }
+        super.onViewStateRestored(savedInstanceState);
+    }
+
+    public void initSubTasksRV(){
+        adapter = new RecyclerViewSubItemOnCreateAdapter(subTasks, rootView.getContext());
+        rv.setHasFixedSize(true);
+        rv.setAdapter(adapter);
+        LinearLayoutManager llm = new LinearLayoutManager(rootView.getContext());
+        rv.setLayoutManager(llm);
+    }
 }

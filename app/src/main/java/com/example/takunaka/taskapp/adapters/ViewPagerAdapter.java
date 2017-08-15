@@ -1,9 +1,11 @@
 package com.example.takunaka.taskapp.adapters;
 
+import android.app.Dialog;
 import android.content.ContentValues;
 import android.content.DialogInterface;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
@@ -11,6 +13,7 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.view.ContextThemeWrapper;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -25,10 +28,12 @@ import com.example.takunaka.taskapp.Configurator;
 import com.example.takunaka.taskapp.R;
 import com.example.takunaka.taskapp.fragments.ShowTaskFragment;
 import com.example.takunaka.taskapp.sql.DBSubTasksHelper;
+import com.example.takunaka.taskapp.sqlQuerry.SubTask;
 import com.example.takunaka.taskapp.sqlQuerry.Task;
 import com.example.takunaka.taskapp.sqlQuerry.TaskContainer;
 import com.example.takunaka.taskapp.sqlQuerry.UserContainer;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -179,10 +184,8 @@ public class ViewPagerAdapter extends FragmentStatePagerAdapter {
             rv.setLayoutManager(llm);
         }
 
+
     }
-
-
-
 
 
 }

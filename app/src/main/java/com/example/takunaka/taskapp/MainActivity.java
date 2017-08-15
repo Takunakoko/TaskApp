@@ -77,31 +77,33 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
         //Создание DB
         dbNamesHelper = new DBNamesHelper(this);
 
-        if(UserContainer.getSelectedID() == 0){
-            showUsersSelectDialog();
-        }else {
-            loadUser();
-            getSupportActionBar().setTitle(UserContainer.getFullName());
-            MenuItem menuItem = (MenuItem) toolbar.findViewById(R.id.account_action);
-            mainFragment = new MainFragment();
-            getSupportFragmentManager()
-                    .beginTransaction()
-                    .add(mainFragment, "Main")
-                    .replace(R.id.container, mainFragment)
-                    //.addToBackStack(null)
-                    .commit();
+
+        if (savedInstanceState == null) {
+
+            if (UserContainer.getSelectedID() == 0) {
+                showUsersSelectDialog();
+            } else {
+                loadUser();
+                getSupportActionBar().setTitle(UserContainer.getFullName());
+                MenuItem menuItem = (MenuItem) toolbar.findViewById(R.id.account_action);
+                mainFragment = new MainFragment();
+                getSupportFragmentManager()
+                        .beginTransaction()
+                        .add(mainFragment, "Main")
+                        .replace(R.id.container, mainFragment)
+                        //.addToBackStack(null)
+                        .commit();
+            }
+        } else {
+            if (UserContainer.getSelectedID() == 0) {
+                showUsersSelectDialog();
+            }else loadUser();
         }
     }
 
-    @Override
-    public void onSaveInstanceState(Bundle outState, PersistableBundle outPersistentState) {
-        super.onSaveInstanceState(outState, outPersistentState);
-
-    }
 
     @Override
     protected void onResume() {
@@ -326,9 +328,19 @@ public class MainActivity extends AppCompatActivity {
         UserContainer.setSelectedID(Integer.valueOf(savedID));
         UserContainer.setSelectedName(sPref.getString(SAVED_NAME, ""));
         UserContainer.setSelectedSurName(sPref.getString(SAVED_SURNAME, ""));
-
     }
 
+    @Override
+    public void onSaveInstanceState(Bundle outState, PersistableBundle outPersistentState) {
 
+        super.onSaveInstanceState(outState, outPersistentState);
+    }
 
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        if(UserContainer.getFullName() == null){
+            showUsersSelectDialog();
+        }
+        super.onRestoreInstanceState(savedInstanceState);
+    }
 }

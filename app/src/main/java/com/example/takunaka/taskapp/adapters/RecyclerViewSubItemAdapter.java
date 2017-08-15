@@ -52,7 +52,6 @@ public class RecyclerViewSubItemAdapter extends RecyclerView.Adapter<RecyclerVie
         dbSubTasksHelper = new DBSubTasksHelper(context);
         //установка отображения элементов на странице
         holder.description.setText(subTask.getDescription());
-
         if(isClosed){
             for (SubTask subTask: subItemsAdapter){
                 dbSubTasksHelper.updateState(subTask.getId(), subTask.getTaskID(), subTask.getNameID());

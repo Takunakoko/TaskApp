@@ -7,6 +7,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
@@ -103,7 +104,7 @@ public class UpdateFragment extends Fragment {
 
                 DatePickerDialog dialog = new DatePickerDialog(getContext(), R.style.Theme_AppCompat_Dialog,
                         mDateSetListner, year_x, month_x, day_x);
-                dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+                dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.DKGRAY));
                 dialog.show();
             }
         });
@@ -114,7 +115,7 @@ public class UpdateFragment extends Fragment {
                 year_x = year;
                 month_x = month;
                 day_x = dayOfMonth;
-                date.setText(dayOfMonth + "." + month + "." + year);
+                date.setText(dayOfMonth + "." + (month + 1) + "." + year);
             }
         };
 
@@ -159,7 +160,6 @@ public class UpdateFragment extends Fragment {
 
             }
         });
-
         state.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
@@ -264,11 +264,25 @@ public class UpdateFragment extends Fragment {
 
     public void initCal(){
         final Calendar cal = Calendar.getInstance();
-        String[] date = TaskContainer.getSelectedTask().getDate().split("\\.");
-        year_x = Integer.valueOf(date[2]);
-        int month = Integer.valueOf(date[1]);
+        String[] _date = date.getText().toString().split("\\.");
+        year_x = Integer.valueOf(_date[2]);
+        int month = Integer.valueOf(_date[1]);
         month_x = month - 1;
-        day_x = Integer.valueOf(date[0]);
+        day_x = Integer.valueOf(_date[0]);
     }
 
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        outState.putString("DateCreate", date.getText().toString());
+        super.onSaveInstanceState(outState);
+    }
+
+    @Override
+    public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
+        if(savedInstanceState != null){
+            date.setText(savedInstanceState.getString("DateCreate"));
+            initCal();
+        }
+        super.onViewStateRestored(savedInstanceState);
+    }
 }
