@@ -6,6 +6,7 @@ package com.example.takunaka.taskapp.sqlQuerry;
  * Created by takunaka on 04.08.17.
  */
 
+//класс контейнер для хранения выбранного юзера
 public class UserContainer {
     private static int selectedID = 0;
     private static String selectedName;

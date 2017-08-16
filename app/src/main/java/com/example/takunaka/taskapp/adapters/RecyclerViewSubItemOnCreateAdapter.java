@@ -10,9 +10,8 @@ import android.widget.CheckBox;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import com.example.takunaka.taskapp.Configurator;
 import com.example.takunaka.taskapp.R;
-import com.example.takunaka.taskapp.sql.DBSubTasksHelper;
+import com.example.takunaka.taskapp.sql.DBHelper;
 import com.example.takunaka.taskapp.sqlQuerry.SubTask;
 
 import java.util.List;
@@ -21,10 +20,9 @@ import java.util.List;
 //класс адаптера отображения recyclerView
 public class RecyclerViewSubItemOnCreateAdapter extends RecyclerView.Adapter<RecyclerViewSubItemOnCreateAdapter.ViewHolder> {
 
-    private Configurator config = Configurator.getInstance();
     private List<SubTask> subItemsAdapter;
     private Context context;
-    private DBSubTasksHelper dbSubTasksHelper;
+    private DBHelper dbHelper;
     private SubTask subTask;
 
     public RecyclerViewSubItemOnCreateAdapter(List<SubTask> subItems, Context context) {
@@ -47,10 +45,12 @@ public class RecyclerViewSubItemOnCreateAdapter extends RecyclerView.Adapter<Rec
     @Override
     public void onBindViewHolder(final ViewHolder holder, int position) {
         subTask = subItemsAdapter.get(position);
-        dbSubTasksHelper = new DBSubTasksHelper(context);
+        dbHelper = new DBHelper(context);
         //установка отображения элементов на странице
         holder.description.setText(subTask.getDescription());
+        //покраска новых дел в нужный цвет
         holder.relativeLayout.setBackgroundColor(Color.parseColor("#424242"));
+        //уставнока чекбокса неактивным
         holder.stateCheck.setEnabled(false);
 
     }

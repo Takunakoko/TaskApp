@@ -33,6 +33,7 @@
         android:layout_marginRight="4dp"
         android:layout_marginBottom="4dp"
         android:hint="Фамилия"
+        android:digits="абвгдеёжзийклмнопрстуфхцчшщъыьэюя АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ"
         android:textColor="@color/colorAccent"
         android:textColorHint="@color/colorAccent"
         android:textColorHighlight="@color/colorAccent"/>

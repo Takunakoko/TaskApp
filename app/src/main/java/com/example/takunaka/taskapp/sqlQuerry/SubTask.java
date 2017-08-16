@@ -3,7 +3,7 @@ package com.example.takunaka.taskapp.sqlQuerry;
 /**
  * Created by takunaka on 07.08.17.
  */
-
+//класс конструктор для создания сабтаска(Дела)
 public class SubTask {
     private int id;
     private int nameID;
@@ -37,31 +37,16 @@ public class SubTask {
         return nameID;
     }
 
-    public void setNameID(int nameID) {
-        this.nameID = nameID;
-    }
-
     public int getTaskID() {
         return taskID;
-    }
-
-    public void setTaskID(int taskID) {
-        this.taskID = taskID;
     }
 
     public String getDescription() {
         return description;
     }
 
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
     public String getState() {
         return state;
     }
 
-    public void setState(String state) {
-        this.state = state;
-    }
 }

@@ -4,6 +4,7 @@ package com.example.takunaka.taskapp.sqlQuerry;
  * Created by takunaka on 04.08.17.
  */
 
+//Класс-конструктор для создани юзера
 public class Users {
 
     private int userID;

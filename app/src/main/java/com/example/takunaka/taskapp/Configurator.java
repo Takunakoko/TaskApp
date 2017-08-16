@@ -1,9 +1,5 @@
 package com.example.takunaka.taskapp;
 
-import com.example.takunaka.taskapp.fragments.CreateTaskFragment;
-import com.example.takunaka.taskapp.fragments.MainFragment;
-import com.example.takunaka.taskapp.fragments.ShowTaskFragment;
-import com.example.takunaka.taskapp.fragments.UpdateFragment;
 import com.example.takunaka.taskapp.sqlQuerry.Task;
 
 import java.util.ArrayList;
@@ -17,6 +13,14 @@ public class Configurator {
 
     private static Configurator instance;
 
+    private int adapterPosition;
+    private boolean isClosed = false;
+    private boolean onlyOpened = true;
+    private boolean FilterActive = false;
+    private String filterDateFrom;
+    private String filterDateTo;
+    private ArrayList<Task> tasks;
+
     private Configurator(){
 
     }
@@ -26,20 +30,6 @@ public class Configurator {
             instance = new Configurator();
         }return instance;
     }
-
-    private int adapterPosition;
-
-    private boolean isClosed = false;
-
-    private boolean onlyOpened = true;
-
-    private boolean FilterActive = false;
-
-    private String filterDateFrom;
-
-    private String filterDateTo;
-
-    private ArrayList<Task> tasks;
 
     public int getAdapterPosition() {
         return adapterPosition;
@@ -96,4 +86,5 @@ public class Configurator {
     public void setTasks(ArrayList<Task> tasks) {
         this.tasks = tasks;
     }
+
 }

@@ -1,23 +1,16 @@
 package com.example.takunaka.taskapp.adapters;
 
-import android.app.Dialog;
 import android.content.ContentValues;
 import android.content.DialogInterface;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.view.ContextThemeWrapper;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -26,14 +19,10 @@ import android.widget.TextView;
 
 import com.example.takunaka.taskapp.Configurator;
 import com.example.takunaka.taskapp.R;
-import com.example.takunaka.taskapp.fragments.ShowTaskFragment;
-import com.example.takunaka.taskapp.sql.DBSubTasksHelper;
-import com.example.takunaka.taskapp.sqlQuerry.SubTask;
+import com.example.takunaka.taskapp.sql.DBHelper;
 import com.example.takunaka.taskapp.sqlQuerry.Task;
-import com.example.takunaka.taskapp.sqlQuerry.TaskContainer;
 import com.example.takunaka.taskapp.sqlQuerry.UserContainer;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -43,9 +32,6 @@ import java.util.List;
 public class ViewPagerAdapter extends FragmentStatePagerAdapter {
 
     private static List<Task> listTaskAdapt;
-    private FragmentManager fm;
-    private Configurator configurator = Configurator.getInstance();
-    private int id;
 
     public ViewPagerAdapter(List<Task> listItems, FragmentManager fm) {
         super(fm);
@@ -55,7 +41,7 @@ public class ViewPagerAdapter extends FragmentStatePagerAdapter {
 
     @Override
     public Fragment getItem(int position) {
-
+        //завязка данных в бандл для ViewPager
         Task li = listTaskAdapt.get(position);
         Fragment fragment = new ViewPagerFragment();
         Bundle args = new Bundle();
@@ -72,10 +58,6 @@ public class ViewPagerAdapter extends FragmentStatePagerAdapter {
         return listTaskAdapt.size();
     }
 
-    @Override
-    public CharSequence getPageTitle(int position) {
-        return "Title";
-    }
 
     public static class ViewPagerFragment extends Fragment {
 
@@ -85,7 +67,7 @@ public class ViewPagerAdapter extends FragmentStatePagerAdapter {
         private Button addSubItemBtn;
         private View rootView;
         private RecyclerView rv;
-        private DBSubTasksHelper dbSubTasksHelper;
+        private DBHelper dbHelper;
         private static RecyclerViewSubItemAdapter adapter;
         private int selectedID;
         private Configurator config = Configurator.getInstance();
@@ -111,15 +93,16 @@ public class ViewPagerAdapter extends FragmentStatePagerAdapter {
                 }
             });
 
-
+            //привязка данных из бандла к нужным полям
             name.setText(args.getString("Name"));
             date.setText(args.getString("Date"));
             state.setText(args.getString("State"));
             selectedID = args.getInt("ID");
-
-            dbSubTasksHelper = new DBSubTasksHelper(rootView.getContext());
+            //инициализация БД
+            dbHelper = new DBHelper(rootView.getContext());
             rv = (RecyclerView) rootView.findViewById(R.id.recyclerView2);
 
+            //проверка на статус. если статус "Закрыта" - не отображать добавление сабтасков
             if(state.getText().equals("Закрыта")){
                 config.setClosed(true);
                 addSubItemBtn.setVisibility(View.INVISIBLE);
@@ -128,16 +111,15 @@ public class ViewPagerAdapter extends FragmentStatePagerAdapter {
                 config.setClosed(false);
                 addSubItemBtn.setVisibility(View.VISIBLE);
             }
-
+            //инициализация ресайклвью для сабтасков
             initRV();
             return rootView;
         }
 
 
-
+        //диалог добавления дела
         public void showDialog() {
-            final DBSubTasksHelper dbSubTasksHelper = new DBSubTasksHelper(getContext());
-            final SQLiteDatabase db = dbSubTasksHelper.getWritableDatabase();
+            final SQLiteDatabase db = dbHelper.getWritableDatabase();
             final ContentValues cv = new ContentValues();
 
             AlertDialog.Builder builder = new AlertDialog.Builder(new android.view.ContextThemeWrapper(getContext(), R.style.Theme_AppCompat_Dialog));
@@ -148,11 +130,13 @@ public class ViewPagerAdapter extends FragmentStatePagerAdapter {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                             EditText description = (EditText) dialogview.findViewById(R.id.descriptionDialog);
-                            cv.put(DBSubTasksHelper.KEY_DESCRIPTION, description.getText().toString());
-                            cv.put(DBSubTasksHelper.KEY_STATE, "В работе");
-                            cv.put(DBSubTasksHelper.KEY_NAMEID, UserContainer.getSelectedID());
-                            cv.put(DBSubTasksHelper.KEY_TASKID, selectedID);
-                            db.insert(DBSubTasksHelper.TABLE_SUBTASK, null, cv);
+                            //доавбление дела в таблицу в базе данных
+                            cv.put(DBHelper.KEY_DESCRIPTION, description.getText().toString());
+                            cv.put(DBHelper.KEY_STATE, "В работе");
+                            cv.put(DBHelper.KEY_NAMEID, UserContainer.getSelectedID());
+                            cv.put(DBHelper.KEY_TASKID, selectedID);
+                            db.insert(DBHelper.TABLE_SUBTASK, null, cv);
+                            //переинициализация RV сабайтемов
                             initRV();
                             adapter.notifyDataSetChanged();
                         }
@@ -171,13 +155,15 @@ public class ViewPagerAdapter extends FragmentStatePagerAdapter {
         @Override
         public void onResume() {
             super.onResume();
+            //инициализация ресайкл вью
             initRV();
-            adapter.updateSet(dbSubTasksHelper.getAllSubTasks(selectedID));
+            adapter.updateSet(dbHelper.getAllSubTasks(selectedID));
             adapter.notifyDataSetChanged();
         }
 
         public void initRV(){
-            adapter = new RecyclerViewSubItemAdapter(dbSubTasksHelper.getAllSubTasks(selectedID), rootView.getContext(), config.isClosed());
+            //инициализация RV адаптера дел. Дополнительно в нем проверка флага булевой переменной. Если булевая = истина - закрыть все дела.
+            adapter = new RecyclerViewSubItemAdapter(dbHelper.getAllSubTasks(selectedID), rootView.getContext(), config.isClosed());
             rv.setHasFixedSize(true);
             rv.setAdapter(adapter);
             LinearLayoutManager llm = new LinearLayoutManager(rootView.getContext());
