@@ -246,6 +246,7 @@ public class UpdateFragment extends Fragment {
         //возврт назад
         if (id == android.R.id.home){
             showTaskFragment = new ShowTaskFragment();
+            hideKeyboard(getContext());
             getFragmentManager().beginTransaction()
             .replace(R.id.container, showTaskFragment)
             .commit();

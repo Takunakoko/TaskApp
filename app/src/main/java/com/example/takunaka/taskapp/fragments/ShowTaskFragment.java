@@ -1,6 +1,8 @@
 package com.example.takunaka.taskapp.fragments;
 
+import android.app.Activity;
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
@@ -15,6 +17,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 
 import com.example.takunaka.taskapp.Configurator;
 import com.example.takunaka.taskapp.R;
@@ -136,12 +139,14 @@ public class ShowTaskFragment extends Fragment implements ViewPager.OnPageChange
         //настройка кнопок меню
         if (id == R.id.action_edit) {
             uFragment = new UpdateFragment();
+            hideKeyboard(getContext());
             getFragmentManager().beginTransaction()
             .replace(R.id.container, uFragment)
             .commit();
         }
         if(id == android.R.id.home){
             mainFragment = new MainFragment();
+            hideKeyboard(getContext());
             getFragmentManager().popBackStack();
             getFragmentManager().beginTransaction()
             .replace(R.id.container, mainFragment)
@@ -236,6 +241,15 @@ public class ShowTaskFragment extends Fragment implements ViewPager.OnPageChange
         AlertDialog alert = builder.create();
         alert.setCanceledOnTouchOutside(false);
         alert.show();
+    }
+
+    //метод скрытия клавиатуры при переходе в другой фрагмент
+    public void hideKeyboard(Context ctx) {
+        InputMethodManager inputManager = (InputMethodManager) ctx.getSystemService(Context.INPUT_METHOD_SERVICE);
+        View v = ((Activity) ctx).getCurrentFocus();
+        if (v == null)
+            return;
+        inputManager.hideSoftInputFromWindow(v.getWindowToken(), 0);
     }
 
 }
