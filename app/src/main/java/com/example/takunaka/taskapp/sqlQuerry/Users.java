@@ -1,12 +1,14 @@
 package com.example.takunaka.taskapp.sqlQuerry;
 
+import android.support.annotation.NonNull;
+
 /**
  * Created by takunaka on 04.08.17.
  */
 
 //Класс-конструктор для создани юзера
 public class Users {
-
+    //Используется для адаптации вывода спиннера
     private int userID;
     private String userName;
     private String userSurName;
@@ -24,12 +26,14 @@ public class Users {
     public String getUserName() {
         return userName;
     }
+
     public String getUserSurName() {
         return userSurName;
     }
 
+    @NonNull
     @Override
-    public String toString () {
+    public String toString() {
         return userName + " " + userSurName;
     }
 }

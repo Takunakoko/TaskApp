@@ -1,10 +1,9 @@
 package com.example.takunaka.taskapp.adapters;
 
-import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
+import android.support.annotation.NonNull;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.RecyclerView;
 import android.util.TypedValue;
@@ -16,11 +15,8 @@ import android.widget.CheckBox;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import com.example.takunaka.taskapp.Configurator;
 import com.example.takunaka.taskapp.MainActivity;
 import com.example.takunaka.taskapp.R;
-import com.example.takunaka.taskapp.fragments.MainFragment;
-import com.example.takunaka.taskapp.fragments.ShowTaskFragment;
 import com.example.takunaka.taskapp.sql.DBHelper;
 import com.example.takunaka.taskapp.sqlQuerry.SubTask;
 import com.example.takunaka.taskapp.sqlQuerry.TaskContainer;
@@ -29,47 +25,47 @@ import java.util.List;
 
 
 //класс адаптера отображения recyclerView
-public class RecyclerViewSubItemAdapter extends RecyclerView.Adapter<RecyclerViewSubItemAdapter.ViewHolder> {
+class RecyclerViewSubItemAdapter extends RecyclerView.Adapter<RecyclerViewSubItemAdapter.ViewHolder> {
 
     private List<SubTask> subItemsAdapter;
     private Context context;
     private DBHelper dbHelper;
-    private SubTask subTask;
     private boolean isClosed;
 
-    public RecyclerViewSubItemAdapter(List<SubTask> subItems, Context context, boolean isClosed) {
+    RecyclerViewSubItemAdapter(List<SubTask> subItems, Context context, boolean isClosed) {
         this.subItemsAdapter = subItems;
         this.context = context;
         this.isClosed = isClosed;
     }
 
-    public void updateSet(List<SubTask> subTasks){
+    void updateSet(List<SubTask> subTasks) {
         this.subItemsAdapter.clear();
         this.subItemsAdapter = subTasks;
         notifyDataSetChanged();
     }
 
+    @NonNull
     @Override
-    public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.sub_item, parent, false);
         return new ViewHolder(v);
     }
 
     @Override
-    public void onBindViewHolder(final ViewHolder holder, int position) {
-        subTask = subItemsAdapter.get(position);
+    public void onBindViewHolder(@NonNull final ViewHolder holder, int position) {
+        SubTask subTask = subItemsAdapter.get(position);
         dbHelper = new DBHelper(context);
         //установка отображения элементов на странице
         holder.description.setText(subTask.getDescription());
         //проверка булевой статуса
-        if(isClosed){
+        if (isClosed) {
             //если булевая true - закрыть все дела
-            for (SubTask subTask: subItemsAdapter){
-                dbHelper.updateState(subTask.getId(), subTask.getTaskID(), subTask.getNameID());
+            for (SubTask s : subItemsAdapter) {
+                dbHelper.updateState(s.getId(), s.getTaskID(), s.getNameID());
             }
         }
         //Изменение отображения элементов в соответствии со статусом
-        if(subTask.getState().equals("В работе")){
+        if (subTask.getState().equals(context.getResources().getStringArray(R.array.states)[2])) {
             //если в работе - ставим цвет
             holder.relativeLayout.setBackgroundColor(Color.parseColor("#424242"));
         } else {
@@ -84,26 +80,25 @@ public class RecyclerViewSubItemAdapter extends RecyclerView.Adapter<RecyclerVie
         }
 
     }
+
     @Override
     public int getItemCount() {
         return subItemsAdapter.size();
     }
 
 
-
-    public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+    class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
         private TextView description;
         private CheckBox stateCheck;
         private RelativeLayout relativeLayout;
 
-        public ViewHolder(View itemView) {
+        ViewHolder(@NonNull View itemView) {
             super(itemView);
             //привязка элементов к xml файлу
             description = (TextView) itemView.findViewById(R.id.subItemDesc);
             stateCheck = (CheckBox) itemView.findViewById(R.id.checkBox);
             relativeLayout = (RelativeLayout) itemView.findViewById(R.id.subTaskItem);
-
             stateCheck.setOnClickListener(this);
 
         }
@@ -121,62 +116,63 @@ public class RecyclerViewSubItemAdapter extends RecyclerView.Adapter<RecyclerVie
             //обновляем в базе данных данные о том что чекбокс закрыт
             dbHelper.updateState(si.getId(), si.getTaskID(), si.getNameID());
             //проверяем если все дела в этой задаче закрыты
-            if(checkTasks(TaskContainer.getSelectedTask().getTaskID())){
+            if (checkTasks(TaskContainer.getSelectedTask().getTaskID())) {
                 //предлагаем закрыть задачу
                 showCloseDialog(TaskContainer.getSelectedTask().getTaskID());
             }
 
 
         }
+
+        /**
+         * @param id
+         * @return
+         */
         //проверка всех дел этой задачи
-        public boolean checkTasks(int id){
+        boolean checkTasks(int id) {
             boolean needClose = true;
             List<SubTask> list = dbHelper.getAllSubTasks(id);
-            for (SubTask subTask : list){
-                if(subTask.getState().equals("В работе")){
+            for (SubTask subTask : list) {
+                if (subTask.getState().equals(context.getResources().getStringArray(R.array.states)[2])) {
                     needClose = false;
                 }
                 //возвращает правду если больше нет ни одного дела. иначе - ложь
-            } return needClose;
+            }
+            return needClose;
         }
 
+        /**
+         * диалог с предложением закрыть задачу если все дела закрыты
+         *
+         * @param id идентификатор задачи, которую необходимо закрыть
+         */
         //показывает диалог пользователю о том что больше дел нет
-        public void showCloseDialog(final int id){
+        void showCloseDialog(final int id) {
             AlertDialog.Builder builder = new AlertDialog.Builder(new ContextThemeWrapper(context, R.style.Theme_AppCompat_Dialog));
-            builder.setTitle("Все дела в задаче закрыты! Закрыть задачу?")
-                    .setPositiveButton("Закрыть", new DialogInterface.OnClickListener() {
+            builder.setTitle(R.string.all_task_closed_question)
+                    .setPositiveButton(R.string.all_task_close, new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                             //если пользователь соглашается - закрываем задачу
-                            //открываем БД
-                            SQLiteDatabase db = dbHelper.getWritableDatabase();
-                            ContentValues cv = new ContentValues();
-                            cv.put(DBHelper.KEY_STATE, "Закрыта");
-                            db.update(DBHelper.TABLE_TASKS, cv, DBHelper.KEY_ID + " = " + id, null);
-                            //вносим изменения в БД
-                            MainActivity activity = (MainActivity) context;
-                            db.close();
                             dbHelper.close();
+                            dbHelper.closeAllSubTasks(context.getResources().getStringArray(R.array.states)[1], id);
+                            //вносим изменения в БД
+
                             //возвращаемся обратно на главную страницу
-                            activity.getSupportFragmentManager().popBackStack();
-                            activity.getSupportFragmentManager().beginTransaction()
-                                    .replace(R.id.container, new MainFragment())
-                                    .commit();
+                            MainActivity activity = (MainActivity) context;
+                            activity.changeFragment("Main");
                         }
                     })
-                    .setNegativeButton("Продолжить работу", new DialogInterface.OnClickListener() {
+                    .setNegativeButton(R.string.all_task_continue, new DialogInterface.OnClickListener() {
                         @Override
-                        public void onClick(DialogInterface dialog, int which) {
+                        public void onClick(@NonNull DialogInterface dialog, int which) {
                             dialog.cancel();
-
                         }
                     });
-
             AlertDialog alert = builder.create();
             alert.setCanceledOnTouchOutside(false);
             alert.show();
         }
-
 
 
     }

@@ -2,14 +2,14 @@ package com.example.takunaka.taskapp.fragments;
 
 import android.app.Activity;
 import android.app.DatePickerDialog;
-import android.content.ContentValues;
 import android.content.Context;
-import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -28,8 +28,10 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.takunaka.taskapp.Configurator;
+import com.example.takunaka.taskapp.Cfg;
+import com.example.takunaka.taskapp.MainActivity;
 import com.example.takunaka.taskapp.R;
+import com.example.takunaka.taskapp.Utils;
 import com.example.takunaka.taskapp.sql.DBHelper;
 import com.example.takunaka.taskapp.sqlQuerry.SubTask;
 import com.example.takunaka.taskapp.sqlQuerry.TaskContainer;
@@ -39,16 +41,21 @@ import java.util.List;
 
 public class UpdateFragment extends Fragment {
 
-    private ShowTaskFragment showTaskFragment;
+    //Название задачи
     private EditText name;
+    //Дата задачи
     private TextView date;
+    //Спиннер статусов
     private Spinner state;
-    private DBHelper dbHelper;
-    private String selectedID;
+    //поля календаря
     private int year_x, month_x, day_x;
+    //календарь
     private DatePickerDialog.OnDateSetListener mDateSetListner;
-    private Configurator config = Configurator.getInstance();
+
+    private Cfg config = Cfg.getInstance();
+    //иконка меню save
     private MenuItem saveItem;
+    //число для проверки изменений в спиннере и отображения кнопки сохранить.
     private int currentPosition;
 
     public UpdateFragment() {
@@ -62,9 +69,11 @@ public class UpdateFragment extends Fragment {
 
     }
 
-    //создание фрагмента
+    /**
+     * Создание фрагмента
+     */
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         //присвоение для фрагмента тулбар меню
         setHasOptionsMenu(true);
@@ -73,23 +82,23 @@ public class UpdateFragment extends Fragment {
         date = (TextView) rootView.findViewById(R.id.DateUpdateField);
         state = (Spinner) rootView.findViewById(R.id.StateUpdateField);
         //присвоение полям данных на основании выбранного таска
-        name.setText(TaskContainer.getSelectedTask().getDesription());
-        date.setText(TaskContainer.getSelectedTask().getDate());
-        selectedID = String.valueOf(TaskContainer.getSelectedTask().getTaskID());
+        name.setText(TaskContainer.getSelectedTask().getDescription());
+        date.setText(Utils.getStringDate(TaskContainer.getSelectedTask().getDate()));
 
         //массив статусов. имеет декоративное значение.
-        String[] states = { "Выполняется", "Закрыта"};
+        String[] states = {getResources().getStringArray(R.array.states)[0],
+                getResources().getStringArray(R.array.states)[1]};
         //создание адаптера с присвоением массива статусов
         //создается для того, что бы корректно отображать стиль спиннера.
-        ArrayAdapter<String> spinnerItemsAdapter = new ArrayAdapter<String>(getContext(), R.layout.spinner_item, states);
+        ArrayAdapter<String> spinnerItemsAdapter = new ArrayAdapter<>(getContext(), R.layout.spinner_item, states);
         spinnerItemsAdapter.setDropDownViewResource(R.layout.spinner_item);
         state.setAdapter(spinnerItemsAdapter);
 
         //выбор дефолтного item в спиннере на основании статуса
-        if(TaskContainer.getSelectedTask().getState().equals("Выполняется")){
+        if (TaskContainer.getSelectedTask().getState().equals(states[0])) {
             state.setSelection(0);
             currentPosition = 0;
-        }else {
+        } else {
             state.setSelection(1);
             currentPosition = 1;
         }
@@ -102,7 +111,8 @@ public class UpdateFragment extends Fragment {
                 //при нажатии отражение календаря
                 DatePickerDialog dialog = new DatePickerDialog(getContext(), R.style.Theme_AppCompat_Dialog,
                         mDateSetListner, year_x, month_x, day_x);
-                dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.DKGRAY));
+                if (dialog.getWindow() != null)
+                    dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.DKGRAY));
                 dialog.show();
             }
         });
@@ -117,9 +127,11 @@ public class UpdateFragment extends Fragment {
             }
         };
         //включение отображения стрелки "Назад" в тулбаре
-        ((AppCompatActivity) getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        ((AppCompatActivity) getActivity()).getSupportActionBar().setDisplayShowHomeEnabled(true);
-
+        ActionBar bar = ((AppCompatActivity) getActivity()).getSupportActionBar();
+        if (bar != null) {
+            bar.setDisplayHomeAsUpEnabled(true);
+            bar.setDisplayShowHomeEnabled(true);
+        }
         //прослушка изменений в полях и изменение видимости кнопки сохранить. Если произошло изменение - кнопка доступна.
         name.addTextChangedListener(new TextWatcher() {
             @Override
@@ -129,9 +141,9 @@ public class UpdateFragment extends Fragment {
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                if(TaskContainer.getSelectedTask().getState().equals("В работе")){
+                if (TaskContainer.getSelectedTask().getState().equals(getResources().getStringArray(R.array.states)[2])) {
                     saveItem.setVisible(false);
-                }else if (TaskContainer.getSelectedTask().getState().equals("Закрыта")){
+                } else if (TaskContainer.getSelectedTask().getState().equals(getResources().getStringArray(R.array.states)[1])) {
                     saveItem.setVisible(false);
                 }
                 saveItem.setVisible(true);
@@ -181,12 +193,13 @@ public class UpdateFragment extends Fragment {
         });
 
         return rootView;
-
-
     }
-    //настройка отображения меню тулбара
+
+    /**
+     * настройка отображения меню тулбара
+     */
     @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater menuInflater) {
+    public void onCreateOptionsMenu(@NonNull Menu menu, MenuInflater menuInflater) {
         super.onCreateOptionsMenu(menu, menuInflater);
         saveItem = menu.findItem(R.id.action_save).setVisible(false);
         menu.findItem(R.id.action_edit).setVisible(false);
@@ -197,65 +210,59 @@ public class UpdateFragment extends Fragment {
 
     }
 
+    /**
+     * обработка нажатия иконки меню
+     */
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
 
         int id = item.getItemId();
 
-
         if (id == R.id.action_save) {
-            //проверка на пустое поле в названии
-            if(name.getText().equals("")){
-                Toast.makeText(getContext(), "Название не может быть пустым!", Toast.LENGTH_SHORT).show();
-            }else {
-                //если поле не пустое
-                //открытие базы данных
-                dbHelper = new DBHelper(getContext());
-                SQLiteDatabase db = dbHelper.getWritableDatabase();
-                //создание cv
-                ContentValues cv = new ContentValues();
-                cv.put(DBHelper.KEY_DESCRIPTION, name.getText().toString());
-                cv.put(DBHelper.KEY_DATE, date.getText().toString());
-                cv.put(DBHelper.KEY_STATE, state.getSelectedItem().toString());
-                //апдейт базы данных
-                db.update(dbHelper.TABLE_TASKS, cv, dbHelper.KEY_ID +" = " + selectedID, null);
-                //проверка на статус
-                if(state.getSelectedItem().toString().equals("Закрыта")){
-                    //установка булевой сигнализирущей о том что статус задачи - закрыт
-                    config.setClosed(true);
-                    //получение всех дел
-                    List<SubTask> subTasks = dbHelper.getAllSubTasks(Integer.valueOf(selectedID));
-                    //у каждого дела поставить статус "закрыто"
-                    for (SubTask s : subTasks){
-                        dbHelper.updateState(s.getId(), s.getTaskID(), s.getNameID());
-                    }
-                }
-                //переход на фрагмент main
-                MainFragment mainFragment = new MainFragment();
-                getFragmentManager().popBackStack();
-                getFragmentManager().beginTransaction()
-                .replace(R.id.container, mainFragment)
-                .commit();
-                //вызов метода убирания клавиатуры
-                hideKeyboard(getContext());
-                //закрытие БД
-                db.close();
-                dbHelper.close();
-            }
+            saveAction();
         }
         //возврт назад
-        if (id == android.R.id.home){
-            showTaskFragment = new ShowTaskFragment();
-            hideKeyboard(getContext());
-            getFragmentManager().beginTransaction()
-            .replace(R.id.container, showTaskFragment)
-            .commit();
+        if (id == android.R.id.home) {
+            ((MainActivity) getActivity()).changeFragment("ShowTask");
         }
 
         return super.onOptionsItemSelected(item);
     }
-    //метод скрытия клавиатуры
-    public void hideKeyboard(Context ctx) {
+
+    public void saveAction() {
+        //проверка на пустое поле в названии
+        if (name.getText().toString().isEmpty()) {
+            Toast.makeText(getContext(), R.string.empty_task_name, Toast.LENGTH_SHORT).show();
+        } else {
+            //если поле не пустое
+            //открытие базы данных
+            DBHelper dbHelper = new DBHelper(getContext());
+            dbHelper.updateTask(name.getText().toString(), Utils.getUnixTime(date.getText().toString()), state.getSelectedItem().toString());
+
+            //проверка на статус
+            if (state.getSelectedItem().toString().equals(getResources().getStringArray(R.array.states)[1])) {
+                //установка булевой сигнализирущей о том что статус задачи - закрыт
+                config.setClosed(true);
+                //получение всех дел
+                List<SubTask> subTasks = dbHelper.getAllSubTasks(TaskContainer.getSelectedTask().getTaskID());
+                //у каждого дела поставить статус "закрыто"
+                for (SubTask s : subTasks) {
+                    dbHelper.updateState(s.getId(), s.getTaskID(), s.getNameID());
+                }
+            }
+            //переход на фрагмент main
+            ((MainActivity) getActivity()).changeFragment("Main");
+            //вызов метода убирания клавиатуры
+            hideKeyboard(getContext());
+            //закрытие БД
+            dbHelper.close();
+        }
+    }
+
+    /**
+     * метод скрытия клавиатуры при выходе с фрагмента
+     */
+    private void hideKeyboard(@NonNull Context ctx) {
         InputMethodManager inputManager = (InputMethodManager) ctx.getSystemService(Context.INPUT_METHOD_SERVICE);
         View v = ((Activity) ctx).getCurrentFocus();
         if (v == null)
@@ -263,8 +270,10 @@ public class UpdateFragment extends Fragment {
         inputManager.hideSoftInputFromWindow(v.getWindowToken(), 0);
     }
 
-    //инициализация календаря
-    public void initCal(){
+    /**
+     * инициализация календаря
+     */
+    private void initCal() {
         String[] _date = date.getText().toString().split("\\.");
         year_x = Integer.valueOf(_date[2]);
         int month = Integer.valueOf(_date[1]);
@@ -272,19 +281,30 @@ public class UpdateFragment extends Fragment {
         day_x = Integer.valueOf(_date[0]);
     }
 
-    //сохранение данных при изменении ориентации
+    /**
+     * сохранение данных при изменении ориентации
+     *
+     * @param outState bundle с сохраненными данными
+     */
     @Override
-    public void onSaveInstanceState(Bundle outState) {
+    public void onSaveInstanceState(@NonNull Bundle outState) {
         outState.putString("DateCreate", date.getText().toString());
         super.onSaveInstanceState(outState);
     }
-    //возврат данных при изменении ориентации
+
+    /**
+     * возврат данных при изменении ориентации
+     *
+     * @param savedInstanceState bundle с восттановленными данными
+     */
     @Override
     public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
-        if(savedInstanceState != null){
+        if (savedInstanceState != null) {
             date.setText(savedInstanceState.getString("DateCreate"));
             initCal();
         }
         super.onViewStateRestored(savedInstanceState);
     }
+
+
 }

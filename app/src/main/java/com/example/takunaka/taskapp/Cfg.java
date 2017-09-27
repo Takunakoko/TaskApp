@@ -7,28 +7,33 @@ import java.util.ArrayList;
 /**
  * Created by takunaka on 02.08.17.
  */
+//класс конфигуратор - синглтон
+public class Cfg {
 
-public class Configurator {
-
-
-    private static Configurator instance;
-
+    private static Cfg instance;
+    //позиция адаптера
     private int adapterPosition;
+    //флаг для дел. если истина - закрывает все дела
     private boolean isClosed = false;
+    //флаг для свитчера на главной странице.
     private boolean onlyOpened = true;
+    //флаг для фильтра
     private boolean FilterActive = false;
-    private String filterDateFrom;
-    private String filterDateTo;
+    //даты фильтрации
+    private long filterDateFrom;
+    private long filterDateTo;
+    //временное хранение тасков выбранных в фильтре
     private ArrayList<Task> tasks;
 
-    private Configurator(){
+    private Cfg() {
 
     }
 
-    public static Configurator getInstance(){
-        if(instance == null){
-            instance = new Configurator();
-        }return instance;
+    public static Cfg getInstance() {
+        if (instance == null) {
+            instance = new Cfg();
+        }
+        return instance;
     }
 
     public int getAdapterPosition() {
@@ -55,19 +60,19 @@ public class Configurator {
         this.onlyOpened = onlyOpened;
     }
 
-    public String getFilterDateFrom() {
+    public long getFilterDateFrom() {
         return filterDateFrom;
     }
 
-    public void setFilterDateFrom(String filterDateFrom) {
+    public void setFilterDateFrom(long filterDateFrom) {
         this.filterDateFrom = filterDateFrom;
     }
 
-    public String getFilterDateTo() {
+    public long getFilterDateTo() {
         return filterDateTo;
     }
 
-    public void setFilterDateTo(String filterDateTo) {
+    public void setFilterDateTo(long filterDateTo) {
         this.filterDateTo = filterDateTo;
     }
 

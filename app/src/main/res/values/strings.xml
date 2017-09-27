@@ -2,8 +2,32 @@
     <string name="app_name">TaskApp</string>
     <string name="action_settings">Settings</string>
     <string name="hello_blank_fragment">Hello blank fragment</string>
-    <string-array name="States">
+    <string-array name="states">
         <item>Выполняется</item>
         <item>Закрыта</item>
+        <item>В работе</item>
     </string-array>
+    <string name="user_select">Выбор пользователя</string>
+    <string name="new_user">Новый пользователь</string>
+    <string name="select">Выбрать</string>
+    <string name="new_user_create">Создание пользователя:</string>
+    <string name="create">Создать</string>
+    <string name="create_empty_error_message">Необходимо ввести Имя или Фамилию</string>
+    <string name="create_success_message">Пользователь добавлен!</string>
+    <string name="abort">Отмена</string>
+    <string name="user_already_exists">Такой пользователь уже существует!</string>
+    <string name="choose_exists">Выбрать существующего</string>
+    <string name="create_new">Создать нового</string>
+    <string name="empty_task_name">Название не может быть пустым!</string>
+    <string name="empty_name_or_subtask">"Нужно ввести название задачи и создать хотя бы одно дело"</string>
+    <string name="all_task_closed_question">Все дела в задаче закрыты! Закрыть задачу?</string>
+    <string name="all_task_close">Закрыть</string>
+    <string name="all_task_continue">Продолжить работу</string>
+    <string name="filter_period">Выберите период</string>
+    <string name="empty_filter">Нужно ввести даты поиска</string>
+    <string name="task_created">Задача создана</string>
+    <string name="add_sub_task">Добавить дело</string>
+    <string name="add_sub_confirm">Добавить</string>
+    <string name="close_all_sub">Все дела в задаче закрыты! Закрыть задачу?</string>
+
 </resources>

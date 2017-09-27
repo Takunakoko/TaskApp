@@ -3,6 +3,7 @@ package com.example.takunaka.taskapp.sqlQuerry;
 /**
  * Created by takunaka on 07.08.17.
  */
+
 //класс конструктор для создания сабтаска(Дела)
 public class SubTask {
     private int id;

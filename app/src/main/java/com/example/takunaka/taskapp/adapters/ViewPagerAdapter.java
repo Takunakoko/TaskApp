@@ -1,9 +1,8 @@
 package com.example.takunaka.taskapp.adapters;
 
-import android.content.ContentValues;
 import android.content.DialogInterface;
-import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
@@ -17,38 +16,41 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
-import com.example.takunaka.taskapp.Configurator;
+import com.example.takunaka.taskapp.Cfg;
 import com.example.takunaka.taskapp.R;
+import com.example.takunaka.taskapp.Utils;
 import com.example.takunaka.taskapp.sql.DBHelper;
 import com.example.takunaka.taskapp.sqlQuerry.Task;
 import com.example.takunaka.taskapp.sqlQuerry.UserContainer;
 
 import java.util.List;
 
-/**
- * Created by takunaka on 02.08.17.
- */
 
 public class ViewPagerAdapter extends FragmentStatePagerAdapter {
-
+    //лист с элементами pageViewer
     private static List<Task> listTaskAdapt;
+    private static final String bundle_ID = "ID";
+    private static final String bundle_NAME = "NAME";
+    private static final String bundle_DATE = "DATE";
+    private static final String bundle_STATE = "STATE";
 
-    public ViewPagerAdapter(List<Task> listItems, FragmentManager fm) {
+    public ViewPagerAdapter(@NonNull List<Task> listItems, @NonNull FragmentManager fm) {
         super(fm);
-        this.listTaskAdapt = listItems;
+        listTaskAdapt = listItems;
     }
 
 
+    @NonNull
     @Override
     public Fragment getItem(int position) {
         //завязка данных в бандл для ViewPager
         Task li = listTaskAdapt.get(position);
         Fragment fragment = new ViewPagerFragment();
         Bundle args = new Bundle();
-        args.putInt("ID", li.getTaskID());
-        args.putString("Name", li.getDesription());
-        args.putString("Date", li.getDate());
-        args.putString("State", li.getState());
+        args.putInt(ViewPagerAdapter.bundle_ID, li.getTaskID());
+        args.putString(ViewPagerAdapter.bundle_NAME, li.getDescription());
+        args.putInt(ViewPagerAdapter.bundle_DATE, li.getDate());
+        args.putString(ViewPagerAdapter.bundle_STATE, li.getState());
         fragment.setArguments(args);
         return fragment;
     }
@@ -68,13 +70,13 @@ public class ViewPagerAdapter extends FragmentStatePagerAdapter {
         private View rootView;
         private RecyclerView rv;
         private DBHelper dbHelper;
-        private static RecyclerViewSubItemAdapter adapter;
+        private RecyclerViewSubItemAdapter adapter;
         private int selectedID;
-        private Configurator config = Configurator.getInstance();
+        private Cfg config = Cfg.getInstance();
 
         @Override
-        public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle saveInstanceState) {
-
+        public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle saveInstanceState) {
+            //отркытие бандла с данными
             Bundle args = getArguments();
 
             rootView = inflater.inflate(R.layout.viewpager_item, container, false);
@@ -94,63 +96,56 @@ public class ViewPagerAdapter extends FragmentStatePagerAdapter {
             });
 
             //привязка данных из бандла к нужным полям
-            name.setText(args.getString("Name"));
-            date.setText(args.getString("Date"));
-            state.setText(args.getString("State"));
-            selectedID = args.getInt("ID");
+            name.setText(args.getString(ViewPagerAdapter.bundle_NAME));
+            date.setText(Utils.getStringDate(args.getInt(ViewPagerAdapter.bundle_DATE)));
+            state.setText(args.getString(ViewPagerAdapter.bundle_STATE));
+            selectedID = args.getInt(ViewPagerAdapter.bundle_ID);
             //инициализация БД
             dbHelper = new DBHelper(rootView.getContext());
             rv = (RecyclerView) rootView.findViewById(R.id.recyclerView2);
 
-            //проверка на статус. если статус "Закрыта" - не отображать добавление сабтасков
-            if(state.getText().equals("Закрыта")){
+            //проверка на статус. если статус "Закрыта" - не отображать добавление дел
+            if (state.getText().equals(getResources().getStringArray(R.array.states)[1])) {
                 config.setClosed(true);
                 addSubItemBtn.setVisibility(View.INVISIBLE);
-
-            }else {
+                //иначе разрешить добавление дел
+            } else {
                 config.setClosed(false);
                 addSubItemBtn.setVisibility(View.VISIBLE);
             }
-            //инициализация ресайклвью для сабтасков
+            //инициализация ресайклвью для дел
             initRV();
             return rootView;
         }
 
-
-        //диалог добавления дела
+        /**
+         * диалог добавления дела
+         */
         public void showDialog() {
-            final SQLiteDatabase db = dbHelper.getWritableDatabase();
-            final ContentValues cv = new ContentValues();
-
             AlertDialog.Builder builder = new AlertDialog.Builder(new android.view.ContextThemeWrapper(getContext(), R.style.Theme_AppCompat_Dialog));
-            final View dialogview = View.inflate(getContext(), R.layout.dialog_add_description, null);
-            builder.setTitle("Добавить дело")
-                    .setView(dialogview)
-                    .setPositiveButton("Добавить", new DialogInterface.OnClickListener() {
+            final View dialogView = View.inflate(getContext(), R.layout.dialog_add_description, null);
+            builder.setTitle(R.string.add_sub_task)
+                    .setView(dialogView)
+                    .setPositiveButton(R.string.add_sub_confirm, new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
-                            EditText description = (EditText) dialogview.findViewById(R.id.descriptionDialog);
+                            EditText description = (EditText) dialogView.findViewById(R.id.descriptionDialog);
                             //доавбление дела в таблицу в базе данных
-                            cv.put(DBHelper.KEY_DESCRIPTION, description.getText().toString());
-                            cv.put(DBHelper.KEY_STATE, "В работе");
-                            cv.put(DBHelper.KEY_NAMEID, UserContainer.getSelectedID());
-                            cv.put(DBHelper.KEY_TASKID, selectedID);
-                            db.insert(DBHelper.TABLE_SUBTASK, null, cv);
+                            dbHelper.createSubTask(description.getText().toString(), getResources().getStringArray(R.array.states)[2], UserContainer.getSelectedID(), selectedID);
                             //переинициализация RV сабайтемов
                             initRV();
                             adapter.notifyDataSetChanged();
                         }
                     })
-                    .setNegativeButton("Отмена", new DialogInterface.OnClickListener() {
+                    .setNegativeButton(R.string.abort, new DialogInterface.OnClickListener() {
                         @Override
-                        public void onClick(DialogInterface dialog, int which) {
+                        public void onClick(@NonNull DialogInterface dialog, int which) {
                             dialog.cancel();
                         }
                     });
             AlertDialog alert = builder.create();
             alert.show();
         }
-
 
         @Override
         public void onResume() {
@@ -161,17 +156,17 @@ public class ViewPagerAdapter extends FragmentStatePagerAdapter {
             adapter.notifyDataSetChanged();
         }
 
-        public void initRV(){
-            //инициализация RV адаптера дел. Дополнительно в нем проверка флага булевой переменной. Если булевая = истина - закрыть все дела.
+        /**
+         * метод инициализации RV адаптера дел
+         * Дополнительно в нем проверка флага булевой переменной.
+         * Если булевая = истина - закрыть все дела.
+         */
+        public void initRV() {
             adapter = new RecyclerViewSubItemAdapter(dbHelper.getAllSubTasks(selectedID), rootView.getContext(), config.isClosed());
             rv.setHasFixedSize(true);
             rv.setAdapter(adapter);
             LinearLayoutManager llm = new LinearLayoutManager(rootView.getContext());
             rv.setLayoutManager(llm);
         }
-
-
     }
-
-
 }

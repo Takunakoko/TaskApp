@@ -85,7 +85,7 @@
         android:id="@+id/StateUpdateField"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:entries="@array/States"
+        android:entries="@array/states"
         android:gravity="center"
         android:paddingTop="6dp"
         android:paddingBottom="10dp"

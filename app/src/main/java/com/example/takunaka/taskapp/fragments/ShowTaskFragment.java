@@ -1,13 +1,11 @@
 package com.example.takunaka.taskapp.fragments;
 
-import android.app.Activity;
-import android.content.ContentValues;
-import android.content.Context;
 import android.content.DialogInterface;
-import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.view.ContextThemeWrapper;
@@ -17,9 +15,9 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.inputmethod.InputMethodManager;
 
-import com.example.takunaka.taskapp.Configurator;
+import com.example.takunaka.taskapp.Cfg;
+import com.example.takunaka.taskapp.MainActivity;
 import com.example.takunaka.taskapp.R;
 import com.example.takunaka.taskapp.adapters.ViewPagerAdapter;
 import com.example.takunaka.taskapp.sql.DBHelper;
@@ -33,9 +31,7 @@ public class ShowTaskFragment extends Fragment implements ViewPager.OnPageChange
 
     private ViewPagerAdapter mViewPagerAdapter;
     private ViewPager mViewPager;
-    private UpdateFragment uFragment;
-    private MainFragment mainFragment;
-    private Configurator configurator = Configurator.getInstance();
+    private Cfg cfg = Cfg.getInstance();
     private DBHelper dbHelper;
     private View rootView;
 
@@ -49,20 +45,22 @@ public class ShowTaskFragment extends Fragment implements ViewPager.OnPageChange
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         rootView = inflater.inflate(R.layout.fragment_show_task, container, false);
         mViewPager = (ViewPager) rootView.findViewById(R.id.viewPager);
         //вызов метода инициализции PageViewer
-        initPW();
+        initPV();
         //добавление прослушки для PV
         mViewPager.addOnPageChangeListener(this);
         //включение меню тулбара
         setHasOptionsMenu(true);
         //кнопка назад
-        ((AppCompatActivity) getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        ((AppCompatActivity) getActivity()).getSupportActionBar().setDisplayShowHomeEnabled(true);
-
+        ActionBar bar = ((AppCompatActivity) getActivity()).getSupportActionBar();
+        if (bar != null) {
+            bar.setDisplayHomeAsUpEnabled(true);
+            bar.setDisplayShowHomeEnabled(true);
+        }
         return rootView;
 
     }
@@ -71,14 +69,14 @@ public class ShowTaskFragment extends Fragment implements ViewPager.OnPageChange
     public void onResume() {
         super.onResume();
         //инициализация PV
-        initPW();
+        initPV();
         mViewPagerAdapter.notifyDataSetChanged();
     }
 
     @Override
     public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
         //проверка первого элемента. если элемент первый - вывод сообщения.
-        if(position == 0 && positionOffset == 0 && positionOffsetPixels == 0){
+        if (position == 0 && positionOffset == 0 && positionOffsetPixels == 0) {
             checkSubTaskState(position);
         }
     }
@@ -86,30 +84,38 @@ public class ShowTaskFragment extends Fragment implements ViewPager.OnPageChange
     @Override
     public void onPageSelected(int position) {
         //вывод сообшения для всех элементов кроме первого.
-        if(position != 0){
+        if (position != 0) {
             checkSubTaskState(position);
         }
 
     }
-    // проверка сабтасков
-    public void checkSubTaskState(int position){
-        if(configurator.isOnlyOpened()) {
-            TaskContainer.setSelectedTask(dbHelper.getOpenedSortedTask().get(position));
+
+    /**
+     * метод проверки статуса у дел
+     * если все дела закрыты - спрашивает закрыть ли задачу
+     *
+     * @param position позиция для определения выбранной задачи
+     */
+    private void checkSubTaskState(int position) {
+        if (cfg.isOnlyOpened()) {
+            TaskContainer.setSelectedTask(dbHelper.getTasks("openedSort", 0, 0).get(position));
             //проверка статуса задачи из списка открытых задач
-            if(TaskContainer.getSelectedTask().getState().equals("Выполняется")){
+            if (TaskContainer.getSelectedTask().getState().equals(getResources().getStringArray(R.array.states)[0])) {
                 int id = TaskContainer.getSelectedTask().getTaskID();
                 //если истина - проверка статуса всех дел
-                if(checkTasks(id)){
+                if (checkTasks(id)) {
                     //если истина - предложение закрыть все задачи
                     showCloseDialog(id);
                 }
             }
-        }else {
-            //тоже самое что и выше, но со всеми задачами
-            TaskContainer.setSelectedTask(dbHelper.getAllSortedTasks().get(position));
-            if(TaskContainer.getSelectedTask().getState().equals("Выполняется")){
+        } else {
+            TaskContainer.setSelectedTask(dbHelper.getTasks("allSort", 0, 0).get(position));
+            //проверка статуса задачи из списка открытых задач
+            if (TaskContainer.getSelectedTask().getState().equals(getResources().getStringArray(R.array.states)[0])) {
                 int id = TaskContainer.getSelectedTask().getTaskID();
-                if(checkTasks(id)){
+                //если истина - проверка статуса всех дел
+                if (checkTasks(id)) {
+                    //если истина - предложение закрыть все задачи
                     showCloseDialog(id);
                 }
             }
@@ -122,7 +128,7 @@ public class ShowTaskFragment extends Fragment implements ViewPager.OnPageChange
     }
 
     @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater menuInflater) {
+    public void onCreateOptionsMenu(@NonNull Menu menu, MenuInflater menuInflater) {
         super.onCreateOptionsMenu(menu, menuInflater);
         menu.findItem(R.id.account_action).setVisible(false);
         menu.findItem(R.id.action_save).setVisible(false);
@@ -133,62 +139,50 @@ public class ShowTaskFragment extends Fragment implements ViewPager.OnPageChange
     }
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
 
         int id = item.getItemId();
         //настройка кнопок меню
         if (id == R.id.action_edit) {
-            uFragment = new UpdateFragment();
-            hideKeyboard(getContext());
-            getFragmentManager().beginTransaction()
-            .replace(R.id.container, uFragment)
-            .commit();
+            //переход на фрагмент Update
+            ((MainActivity) getActivity()).changeFragment("Update");
         }
-        if(id == android.R.id.home){
-            mainFragment = new MainFragment();
-            hideKeyboard(getContext());
-            getFragmentManager().popBackStack();
-            getFragmentManager().beginTransaction()
-            .replace(R.id.container, mainFragment)
-            .commit();
+        if (id == android.R.id.home) {
+            //переход на фрагмент Main
+            ((MainActivity) getActivity()).changeFragment("Main");
         }
         return super.onOptionsItemSelected(item);
     }
 
-
-    public void initPW(){
+    /**
+     * метод инициализации pageViewer
+     */
+    private void initPV() {
         //инициализация PageViewer
         dbHelper = new DBHelper(rootView.getContext());
         //Если активен фильтр по датам
-        if(configurator.isFilterActive()){
+        if (cfg.isFilterActive()) {
             //инициализация со списком для выбранных задач(берется из временного хранилища. попадает туда при инициализациии списка)
-            mViewPagerAdapter = new ViewPagerAdapter(configurator.getTasks(), getFragmentManager());
-            mViewPager.setAdapter(mViewPagerAdapter);
-            mViewPager.setCurrentItem(configurator.getAdapterPosition());
-            TaskContainer.setSelectedTask(dbHelper.getOpenedSortedTask().get(configurator.getAdapterPosition()));
-            mViewPagerAdapter.notifyDataSetChanged();
-        }else {
+            mViewPagerAdapter = new ViewPagerAdapter(cfg.getTasks(), getFragmentManager());
+            //установка выбранной задачи в контейнер
+            TaskContainer.setSelectedTask(dbHelper.getTasks("openedSort", 0, 0).get(cfg.getAdapterPosition()));
+        } else {
             //если фильтр не активен
-            if(configurator.isOnlyOpened()){
+            if (cfg.isOnlyOpened()) {
                 //инициализация только открытых задач
-                mViewPagerAdapter = new ViewPagerAdapter(dbHelper.getOpenedSortedTask(), getFragmentManager());
-                mViewPager.setAdapter(mViewPagerAdapter);
-                mViewPager.setCurrentItem(configurator.getAdapterPosition());
-                TaskContainer.setSelectedTask(dbHelper.getOpenedSortedTask().get(configurator.getAdapterPosition()));
-                mViewPagerAdapter.notifyDataSetChanged();
-            }
-            else {
+                mViewPagerAdapter = new ViewPagerAdapter(dbHelper.getTasks("openedSort", 0, 0), getFragmentManager());
+                //установка выбранной задачи в контейнер
+                TaskContainer.setSelectedTask(dbHelper.getTasks("openedSort", 0, 0).get(cfg.getAdapterPosition()));
+            } else {
                 //инициализация со всем списком
-                mViewPagerAdapter = new ViewPagerAdapter(dbHelper.getAllSortedTasks(), getFragmentManager());
-                mViewPager.setAdapter(mViewPagerAdapter);
-                mViewPager.setCurrentItem(configurator.getAdapterPosition());
-                TaskContainer.setSelectedTask(dbHelper.getAllSortedTasks().get(configurator.getAdapterPosition()));
-                mViewPagerAdapter.notifyDataSetChanged();
+                mViewPagerAdapter = new ViewPagerAdapter(dbHelper.getTasks("allSort", 0, 0), getFragmentManager());
+                //установка выбранной задачи в контейнер
+                TaskContainer.setSelectedTask(dbHelper.getTasks("allSort", 0, 0).get(cfg.getAdapterPosition()));
             }
         }
-
-
-
+        mViewPager.setAdapter(mViewPagerAdapter);
+        mViewPager.setCurrentItem(cfg.getAdapterPosition());
+        mViewPagerAdapter.notifyDataSetChanged();
     }
 
     @Override
@@ -196,60 +190,54 @@ public class ShowTaskFragment extends Fragment implements ViewPager.OnPageChange
         super.onDestroy();
     }
 
-    //проверка дел на статус "в работе"
-    public boolean checkTasks(int id){
+    /**
+     * проверка на необходимость закрыть задачу в связи с отсутствием открытых дел
+     *
+     * @param id идентификатор задачи
+     * @return возвращает истину, если нет ни одного дела со статусом в работе
+     */
+    private boolean checkTasks(int id) {
         boolean needClose = true;
         List<SubTask> list = dbHelper.getAllSubTasks(id);
-        for (SubTask subTask : list){
-            if(subTask.getState().equals("В работе")){
+        for (SubTask subTask : list) {
+            if (subTask.getState().equals(getResources().getStringArray(R.array.states)[2])) {
                 needClose = false;
             }
             //если в списке есть хотя бы одна задача в работе - возвращает ложь. Иначе - возвращает истину.
-        }return needClose;
+        }
+        return needClose;
     }
 
-    //предложение пользователю закрыть задачу если нет дел в работе
-    public void showCloseDialog(final int id){
+    /**
+     * предложение пользователю закрыть задачу если нет дел в работе
+     *
+     * @param id идентификатор открытой задачи
+     */
+    private void showCloseDialog(final int id) {
         AlertDialog.Builder builder = new AlertDialog.Builder(new ContextThemeWrapper(getContext(), R.style.Theme_AppCompat_Dialog));
-        builder.setTitle("Все дела в задаче закрыты! Закрыть задачу?")
-                .setPositiveButton("Закрыть", new DialogInterface.OnClickListener() {
+        builder.setTitle(R.string.all_task_closed_question)
+                //кнопка закрыть
+                .setPositiveButton(R.string.all_task_close, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        //если пользователь соглашается
-                        //открываем базу данных
-                        SQLiteDatabase db = dbHelper.getWritableDatabase();
-                        ContentValues cv = new ContentValues();
-                        cv.put(DBHelper.KEY_STATE, "Закрыта");
-                        //вносим изменения
-                        db.update(DBHelper.TABLE_TASKS, cv, DBHelper.KEY_ID + " = " + id, null);
+                        //внесение в БД изменений
+                        dbHelper.closeAllSubTasks(getResources().getStringArray(R.array.states)[1], id);
                         //переходим обратно в список задач
-                        mainFragment = new MainFragment();
-                        getFragmentManager().popBackStack();
-                        getFragmentManager().beginTransaction()
-                                .replace(R.id.container, mainFragment)
-                                .commit();
+                        ((MainActivity) getActivity()).changeFragment("Main");
                     }
                 })
-                .setNegativeButton("Продолжить работу", new DialogInterface.OnClickListener() {
+                //отказ
+                .setNegativeButton(R.string.all_task_continue, new DialogInterface.OnClickListener() {
                     @Override
-                    public void onClick(DialogInterface dialog, int which) {
+                    public void onClick(@NonNull DialogInterface dialog, int which) {
+                        //закрывает диалог
                         dialog.cancel();
 
                     }
                 });
-
         AlertDialog alert = builder.create();
         alert.setCanceledOnTouchOutside(false);
         alert.show();
-    }
-
-    //метод скрытия клавиатуры при переходе в другой фрагмент
-    public void hideKeyboard(Context ctx) {
-        InputMethodManager inputManager = (InputMethodManager) ctx.getSystemService(Context.INPUT_METHOD_SERVICE);
-        View v = ((Activity) ctx).getCurrentFocus();
-        if (v == null)
-            return;
-        inputManager.hideSoftInputFromWindow(v.getWindowToken(), 0);
     }
 
 }

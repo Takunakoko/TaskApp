@@ -1,7 +1,7 @@
 package com.example.takunaka.taskapp.adapters;
 
-import android.content.Context;
 import android.graphics.Color;
+import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -11,41 +11,29 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.example.takunaka.taskapp.R;
-import com.example.takunaka.taskapp.sql.DBHelper;
 import com.example.takunaka.taskapp.sqlQuerry.SubTask;
 
 import java.util.List;
-
 
 //класс адаптера отображения recyclerView
 public class RecyclerViewSubItemOnCreateAdapter extends RecyclerView.Adapter<RecyclerViewSubItemOnCreateAdapter.ViewHolder> {
 
     private List<SubTask> subItemsAdapter;
-    private Context context;
-    private DBHelper dbHelper;
-    private SubTask subTask;
 
-    public RecyclerViewSubItemOnCreateAdapter(List<SubTask> subItems, Context context) {
+    public RecyclerViewSubItemOnCreateAdapter(List<SubTask> subItems) {
         this.subItemsAdapter = subItems;
-        this.context = context;
     }
 
-    public void updateSet(List<SubTask> subTasks){
-        this.subItemsAdapter.clear();
-        this.subItemsAdapter = subTasks;
-        notifyDataSetChanged();
-    }
-
+    @NonNull
     @Override
-    public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.sub_item, parent, false);
         return new ViewHolder(v);
     }
 
     @Override
-    public void onBindViewHolder(final ViewHolder holder, int position) {
-        subTask = subItemsAdapter.get(position);
-        dbHelper = new DBHelper(context);
+    public void onBindViewHolder(@NonNull final ViewHolder holder, int position) {
+        SubTask subTask = subItemsAdapter.get(position);
         //установка отображения элементов на странице
         holder.description.setText(subTask.getDescription());
         //покраска новых дел в нужный цвет
@@ -59,27 +47,18 @@ public class RecyclerViewSubItemOnCreateAdapter extends RecyclerView.Adapter<Rec
         return subItemsAdapter.size();
     }
 
-
-
-    public class ViewHolder extends RecyclerView.ViewHolder{
+    class ViewHolder extends RecyclerView.ViewHolder{
 
         private TextView description;
         private CheckBox stateCheck;
         private RelativeLayout relativeLayout;
 
-        public ViewHolder(View itemView) {
+        ViewHolder(@NonNull View itemView) {
             super(itemView);
             //привязка элементов к xml файлу
             description = (TextView) itemView.findViewById(R.id.subItemDesc);
             stateCheck = (CheckBox) itemView.findViewById(R.id.checkBox);
             relativeLayout = (RelativeLayout) itemView.findViewById(R.id.subTaskItem);
-
-
-
         }
-
-
     }
-
-
 }

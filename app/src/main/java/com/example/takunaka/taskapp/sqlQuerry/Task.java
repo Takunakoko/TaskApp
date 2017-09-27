@@ -4,19 +4,17 @@ package com.example.takunaka.taskapp.sqlQuerry;
  * Created by takunaka on 07.08.17.
  */
 
-//класс-контруктор для создания таска и получения его полей
+//класс-контруктор для создания тасков и получения его полей
 public class Task {
     private int taskID;
-    private int nameID;
-    private String desription;
-    private String date;
+    private String description;
+    private int date;
     private String state;
     private int type;
 
-    public Task(int taskID, int nameID, String desription, String date, String state) {
+    public Task(int taskID, String description, int date, String state) {
         this.taskID = taskID;
-        this.nameID = nameID;
-        this.desription = desription;
+        this.description = description;
         this.date = date;
         this.state = state;
     }
@@ -25,11 +23,11 @@ public class Task {
         return taskID;
     }
 
-    public String getDesription() {
-        return desription;
+    public String getDescription() {
+        return description;
     }
 
-    public String getDate() {
+    public Integer getDate() {
         return date;
     }
 

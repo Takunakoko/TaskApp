@@ -1,6 +1,7 @@
 package com.example.takunaka.taskapp.sqlQuerry;
 
 
+import android.support.annotation.NonNull;
 
 /**
  * Created by takunaka on 04.08.17.
@@ -8,8 +9,11 @@ package com.example.takunaka.taskapp.sqlQuerry;
 
 //класс контейнер для хранения выбранного юзера
 public class UserContainer {
+    //Айдишник выбранного юзера
     private static int selectedID = 0;
+    //Имя выбранного юзера
     private static String selectedName;
+    //Фамилия выбранного юзера
     private static String selectedSurName;
 
     public static int getSelectedID() {
@@ -36,7 +40,8 @@ public class UserContainer {
         UserContainer.selectedSurName = selectedSurName;
     }
 
-    public static String getFullName(){
+    @NonNull
+    public static String getFullName() {
         return getSelectedSurName() + " " + getSelectedName();
     }
 }

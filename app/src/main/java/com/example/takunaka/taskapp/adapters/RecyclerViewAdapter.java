@@ -2,7 +2,7 @@ package com.example.takunaka.taskapp.adapters;
 
 import android.content.Context;
 import android.graphics.Color;
-import android.support.v7.app.AppCompatActivity;
+import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -11,9 +11,10 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import com.example.takunaka.taskapp.Configurator;
+import com.example.takunaka.taskapp.Cfg;
+import com.example.takunaka.taskapp.MainActivity;
 import com.example.takunaka.taskapp.R;
-import com.example.takunaka.taskapp.fragments.ShowTaskFragment;
+import com.example.takunaka.taskapp.Utils;
 import com.example.takunaka.taskapp.sqlQuerry.Task;
 
 import java.util.ArrayList;
@@ -22,11 +23,11 @@ import java.util.ArrayList;
 //класс адаптера отображения recyclerView
 public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.ViewHolder> {
 
-    private Configurator config = Configurator.getInstance();
-    private ShowTaskFragment stFragment;
+    private Cfg config = Cfg.getInstance();
     private ArrayList<Task> listTasks;
     private Context context;
     private int viewTypeSelected = 0;
+
 
 
     public RecyclerViewAdapter(ArrayList<Task> listTasks, Context context) {
@@ -50,8 +51,9 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
         return viewType;
     }
 
+    @NonNull
     @Override
-    public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
 
         //свитчер
         switch (viewType){
@@ -73,15 +75,15 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
     }
 
     @Override
-    public void onBindViewHolder(ViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
 
         Task li = listTasks.get(position);
         //установка отображения элементов на странице
-        holder.name.setText(li.getDesription());
+        holder.name.setText(li.getDescription());
         holder.state.setText(li.getState());
         //если тип первый - устанавливает дату в месте тайтла
         if(viewTypeSelected == 1){
-            holder.headerDate.setText(li.getDate());
+            holder.headerDate.setText(Utils.getStringDate(li.getDate()));
         }
         //если статус выполняется ставит логотип к задаче и подкрашивает текст статуса
         if(li.getState().equals("Выполняется")){
@@ -101,7 +103,7 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
         return listTasks.size();
     }
 
-    public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+     class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
         private TextView name;
         private TextView state;
@@ -109,7 +111,7 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
         private RelativeLayout rl;
         private ImageView imageView;
 
-        public ViewHolder(View itemView) {
+         ViewHolder(@NonNull View itemView) {
             super(itemView);
             //привязка элементов к xml файлу
             name = (TextView) itemView.findViewById(R.id.Name);
@@ -125,13 +127,9 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
         @Override
         public void onClick(View v) {
             config.setAdapterPosition(getAdapterPosition());
-            stFragment = new ShowTaskFragment();
+            MainActivity mainActivity = (MainActivity) context;
             //переход в фрагмент показа с выбранным элементом
-            AppCompatActivity activity = (AppCompatActivity) v.getContext();
-            activity.getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.container, stFragment)
-                    .addToBackStack(null)
-                    .commit();
+            mainActivity.changeFragment("ShowTask");
         }
 
     }
